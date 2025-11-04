@@ -11,21 +11,36 @@ class UnifiedRedisClient {
 
   async initialize() {
     try {
-      // Try to connect to Redis
-      this.client = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: process.env.REDIS_PORT || 6379,
-        password: process.env.REDIS_PASSWORD || undefined,
-        retryDelayOnFailover: 100,
-        maxRetriesPerRequest: 3,
+      // Prefer REDIS_URL if provided (typical in Render/managed Redis providers)
+      const redisUrl = process.env.REDIS_URL;
+      const commonOptions = {
         lazyConnect: true,
-        // Connection timeout
         connectTimeout: 5000,
-        // Retry configuration
         retryDelayOnClusterDown: 300,
         retryDelayOnFailover: 100,
         maxRetriesPerRequest: 3,
-      });
+        keepAlive: 30000,
+      };
+
+      if (redisUrl) {
+        // Enable TLS automatically for rediss:// URLs (managed Redis providers often require TLS)
+        const usesTls = redisUrl.startsWith('rediss://');
+        const urlOptions = usesTls
+          ? { ...commonOptions, tls: { rejectUnauthorized: process.env.REDIS_TLS_REJECT_UNAUTHORIZED !== 'false' } }
+          : commonOptions;
+
+        this.client = new Redis(redisUrl, urlOptions);
+        logger.info('🔌 Unified Redis client: initializing via REDIS_URL');
+      } else {
+        // Fallback to discrete host/port/password envs
+        this.client = new Redis({
+          host: process.env.REDIS_HOST || 'localhost',
+          port: process.env.REDIS_PORT || 6379,
+          password: process.env.REDIS_PASSWORD || undefined,
+          ...commonOptions,
+        });
+        logger.info('🔌 Unified Redis client: initializing via host/port/password');
+      }
 
       // Handle connection events
       this.client.on('connect', () => {
