@@ -1,0 +1,146 @@
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+const adminSupabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function testBackgroundComplete() {
+  try {
+    const testEmail = 'backgroundtest@gmail.com';
+    const testPassword = 'TestPass123!'; // Meets requirements: uppercase, lowercase, number, special char
+    
+    console.log('🧪 Complete Background Test');
+    console.log('==========================\n');
+    
+    // Step 1: Create test user
+    console.log('1️⃣ Creating test user...');
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: testEmail,
+      password: testPassword,
+      options: {
+        data: {
+          name: 'Background Test User'
+        }
+      }
+    });
+    
+    if (signUpError && !signUpError.message.includes('already registered')) {
+      console.error('❌ Signup error:', signUpError);
+      return;
+    }
+    
+    console.log('✅ User created/exists');
+    
+    // Step 2: Sign in to get session
+    console.log('\n2️⃣ Signing in...');
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: testEmail,
+      password: testPassword
+    });
+    
+    if (authError) {
+      console.error('❌ Auth error:', authError);
+      return;
+    }
+    
+    console.log('✅ Signed in successfully');
+    console.log('User ID:', authData.user.id);
+    
+    // Step 3: Get available background images
+    console.log('\n3️⃣ Getting background images...');
+    const { data: backgroundImages, error: bgError } = await adminSupabase
+      .from('background_images')
+      .select('*')
+      .eq('is_active', true)
+      .limit(3);
+    
+    if (bgError) {
+      console.error('❌ Error fetching background images:', bgError);
+      return;
+    }
+    
+    console.log(`✅ Found ${backgroundImages.length} background images:`);
+    backgroundImages.forEach((img, index) => {
+      console.log(`  ${index + 1}. ${img.name} (${img.category})`);
+    });
+    
+    // Step 4: Set background image for user
+    if (backgroundImages.length > 0) {
+      const selectedImage = backgroundImages[0];
+      console.log(`\n4️⃣ Setting background: ${selectedImage.name}`);
+      
+      const { data: updatedSettings, error: updateError } = await adminSupabase
+        .from('settings')
+        .upsert({ 
+          user_id: authData.user.id,
+          background_image_id: selectedImage.id,
+          updated_at: new Date().toISOString()
+        })
+        .select();
+      
+      if (updateError) {
+        console.error('❌ Error updating settings:', updateError);
+        return;
+      }
+      
+      console.log('✅ Background image set successfully');
+    }
+    
+    // Step 5: Test settings API
+    console.log('\n5️⃣ Testing Settings API...');
+    
+    const response = await fetch('http://localhost:5000/api/settings', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authData.session.access_token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('API Response Status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Settings API successful!');
+      console.log('\n📄 Response Data:');
+      console.log('  User ID:', data.user_id);
+      console.log('  Background Image ID:', data.background_image_id);
+      console.log('  Background Image Data:', data.background_images);
+      
+      if (data.background_images) {
+        console.log('\n🎨 Background Details:');
+        console.log('  Name:', data.background_images.name);
+        console.log('  URL:', data.background_images.url);
+        console.log('  Category:', data.background_images.category);
+        
+        console.log('\n✅ SUCCESS: Background image is properly configured!');
+        console.log('🔗 The frontend should now load this background image.');
+      } else {
+        console.log('\n❌ No background image data returned');
+      }
+    } else {
+      const errorText = await response.text();
+      console.error('❌ Settings API Error:', response.status, errorText);
+    }
+    
+    // Step 6: Test frontend access
+    console.log('\n6️⃣ Frontend Test Instructions:');
+    console.log('================================');
+    console.log('1. Go to http://localhost:8080/login');
+    console.log(`2. Login with: ${testEmail} / ${testPassword}`);
+    console.log('3. Navigate to the chat page');
+    console.log('4. You should see the background image applied!');
+    
+  } catch (error) {
+    console.error('❌ Unexpected error:', error);
+  }
+}
+
+testBackgroundComplete();

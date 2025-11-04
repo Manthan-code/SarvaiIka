@@ -1,0 +1,45 @@
+## Coverage Summary
+- Statements: 43.33%
+- Branches: 40.47%
+- Functions: 41.48%
+- Lines: 43.93%
+
+## Top 10 Lowest Coverage
+- D:\ai-agent-platform\frontend\src\hooks\use-toast.ts G혀 0.00% (lines 0/51)
+- D:\ai-agent-platform\frontend\src\hooks\useChats.js G혀 0.00% (lines 0/4)
+- D:\ai-agent-platform\frontend\src\hooks\usePlans.js G혀 0.00% (lines 0/3)
+- D:\ai-agent-platform\frontend\src\services\backgroundImageService.ts G혀 0.00% (lines 0/34)
+- D:\ai-agent-platform\frontend\src\services\billingService.js G혀 0.00% (lines 0/31)
+- D:\ai-agent-platform\frontend\src\services\chatsService.js G혀 0.00% (lines 0/16)
+- D:\ai-agent-platform\frontend\src\services\errorApiService.ts G혀 0.00% (lines 0/57)
+- D:\ai-agent-platform\frontend\src\services\errorTrackingService.ts G혀 0.00% (lines 0/107)
+- D:\ai-agent-platform\frontend\src\services\optimizedStreamingService.ts G혀 0.00% (lines 0/191)
+- D:\ai-agent-platform\frontend\src\services\plansService.js G혀 0.00% (lines 0/2)
+
+## Top 5 Highest Coverage
+- D:\ai-agent-platform\frontend\src\components\auth\GitHubOAuthButton.tsx G혀 100.00% (lines 1/1)
+- D:\ai-agent-platform\frontend\src\components\auth\GoogleOAuthButton.tsx G혀 100.00% (lines 1/1)
+- D:\ai-agent-platform\frontend\src\components\auth\MicrosoftOAuthButton.tsx G혀 100.00% (lines 1/1)
+- D:\ai-agent-platform\frontend\src\components\layout\MainLayout.tsx G혀 100.00% (lines 1/1)
+- D:\ai-agent-platform\frontend\src\lib\utils.ts G혀 100.00% (lines 1/1)
+
+## Heatmap (by folder)
+- components: 79.00%
+- hooks: 60.35%
+- utils: 22.28%
+- pages: 0.00%
+
+## Quick Wins
+- D:\ai-agent-platform\frontend\src\services\plansService.js G혀 0.00% (small: 2 lines)
+- D:\ai-agent-platform\frontend\src\hooks\usePlans.js G혀 0.00% (small: 3 lines)
+- D:\ai-agent-platform\frontend\src\hooks\useChats.js G혀 0.00% (small: 4 lines)
+- D:\ai-agent-platform\frontend\src\services\supabaseClient.ts G혀 0.00% (small: 6 lines)
+- D:\ai-agent-platform\frontend\src\services\subscriptionsService.ts G혀 0.00% (small: 10 lines)
+- D:\ai-agent-platform\frontend\src\services\profileService.js G혀 0.00% (small: 12 lines)
+- D:\ai-agent-platform\frontend\src\services\chatsService.js G혀 0.00% (small: 16 lines)
+- D:\ai-agent-platform\frontend\src\services\stripeService.js G혀 0.00% (small: 28 lines)
+- D:\ai-agent-platform\frontend\src\services\billingService.js G혀 0.00% (small: 31 lines)
+- D:\ai-agent-platform\frontend\src\services\backgroundImageService.ts G혀 0.00% (small: 34 lines)
+
+## Focus Areas (Complex/High-Value)
+- D:\ai-agent-platform\frontend\src\services\optimizedStreamingService.ts G혀 0.00% (large: 191 lines)
