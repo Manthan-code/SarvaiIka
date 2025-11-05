@@ -19,6 +19,7 @@ module.exports = {
   
   // Module name mapping
   moduleNameMapper: {
+    '^@/services/supabaseClient$': '<rootDir>/tests/__mocks__/supabaseClient.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@components/(.*)$': '<rootDir>/src/components/$1',
     '^@hooks/(.*)$': '<rootDir>/src/hooks/$1',

@@ -15,6 +15,7 @@ const Chat = lazy(() => import('./pages/Chat'));
 const Settings = lazy(() => import('./pages/settings'));
 const TransactionHistory = lazy(() => import('./pages/TransactionHistory'));
 const ShareChat = lazy(() => import('./pages/ShareChat'));
+const CenteredChatDemo = lazy(() => import('./pages/CenteredChatDemo'));
 const EnhancedStreamingChat = lazy(() => import('./components/EnhancedStreamingChat'));
 
 // Admin page imports
@@ -348,6 +349,7 @@ function App() {
                   </AsyncErrorBoundary>
                 </StreamingErrorBoundary>
               } />
+              <Route path="/chat-centered" element={<CenteredChatDemo />} />
               {/* Debug streaming route to validate SSE and model flow */}
               <Route path="/streaming" element={<EnhancedStreamingChat />} />
               <Route path="/settings" element={<Settings />} />

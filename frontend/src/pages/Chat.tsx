@@ -12,10 +12,11 @@ import {
 import { useActiveChat } from '@/hooks/useActiveChat';
 import { useStreamingChat } from '@/hooks/useStreamingChat';
 import { useAuthStore } from '@/stores/authStore';
-import { ChatLoadingSkeleton } from '@/components/ui/ChatMessageSkeleton';
+// Removed legacy skeleton in favor of a minimal loading spinner
 import { useSafeBackground } from '@/hooks/useSafeBackground';
 import chatsService from '@/services/chatsService';
 import ShareChatModal from '@/components/modals/ShareChatModal';
+import ChatLoadingIndicator from '@/components/ui/ChatLoadingIndicator';
 
 export default function Chat() {
   const { chatId } = useParams();
@@ -32,6 +33,7 @@ export default function Chat() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isNewChat, setIsNewChat] = useState(!chatId);
+  const [docked, setDocked] = useState<boolean>(!!chatId);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -109,6 +111,27 @@ export default function Chat() {
     }
   }, [chatId, currentChatId, switchChat, clearMessages, clearStreamMessages]);
 
+  // If a 404 occurs for the requested chat, treat as a new chat
+  useEffect(() => {
+    if (error === 'Chat not found') {
+      setIsNewChat(true);
+    }
+  }, [error]);
+
+  // Dock input when existing chat or any content present (including streaming);
+  // undock only when truly empty new chat
+  useEffect(() => {
+    const hasAnyContent = (messages.length > 0)
+      || ((streamMessages as any)?.length > 0)
+      || !!streamingState?.isStreaming;
+
+    if (isNewChat && !hasAnyContent) {
+      setDocked(false);
+    } else if (currentChatId || hasAnyContent) {
+      setDocked(true);
+    }
+  }, [isNewChat, currentChatId, messages, streamMessages, streamingState?.isStreaming]);
+
 
 
   // Auto-scroll so latest message aligns at the top of the viewport
@@ -175,6 +198,35 @@ export default function Chat() {
     }
   }, []);
 
+  // Personalized rotating slogan for new chat
+  const displayName = useMemo(() => {
+    const metaName = (user as any)?.user_metadata?.name;
+    if (typeof metaName === 'string' && metaName.trim()) {
+      return metaName.trim().split(' ')[0];
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'there';
+  }, [user]);
+
+  const baseSlogans = useMemo(
+    () => [
+      "What’s on the agenda today?",
+      "Ready when you are.",
+      "Where should we begin?",
+      "What are you working on?",
+    ],
+    []
+  );
+
+  const slogans = useMemo(
+    () => [...baseSlogans, `How can I help, ${displayName}?`],
+    [baseSlogans, displayName]
+  );
+
+  const [slogan] = useState<string>(() => slogans[Math.floor(Math.random() * slogans.length)]);
+
   const shareMessage = async (text: string) => {
     if (navigator.share) {
       try {
@@ -216,6 +268,7 @@ export default function Chat() {
 
     const messageText = input.trim();
     setInput('');
+    if (!docked) setDocked(true);
     setIsSending(true);
     lastUserInputRef.current = messageText;
 
@@ -242,6 +295,7 @@ export default function Chat() {
     navigate('/chat');
     setInput('');
     setIsNewChat(true);
+    setDocked(false);
     clearStreamMessages();
   };
 
@@ -339,18 +393,23 @@ export default function Chat() {
         )}
       </div>
 
-      {/* Messages Area */}
+      {/* Top spacer to vertically center input before first send */}
+      <div className={`transition-[height] duration-300 ease-out ${docked ? 'h-0' : 'h-1/2'}`} />
+
+      {/* Messages Area (expands only after docking) */}
       <div 
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto custom-scrollbar scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent pb-40 px-4 relative flex flex-col-reverse"
+        className={`transition-[height] duration-300 ease-out ${docked 
+          ? 'flex-1 overflow-y-auto pb-40 custom-scrollbar scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent' 
+          : 'h-0 overflow-y-hidden pb-0'} px-4 relative flex flex-col-reverse`}
       >
         {/* Overlay for better text readability when background image is present */}
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/70 dark:bg-black/70 pointer-events-none" />
         )}
         <div className="max-w-3xl mx-auto py-6 space-y-6 relative z-10">
-          {/* Error message */}
-          {error && (
+          {/* Error message (hide for new chat state) */}
+          {error && !isNewChat && (
             <div className="flex justify-center py-4">
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2">
                 <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
@@ -360,137 +419,131 @@ export default function Chat() {
           
 
           
-          {isLoading && messages.length === 0 ? (
-            <div className="space-y-4">
-              <ChatLoadingSkeleton />
-            </div>
-          ) : messages.length === 0 ? (
-            // Welcome message for empty chat
-            <div className="flex flex-col items-center justify-center h-full pt-20 text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center mb-6">
-                <div className="text-4xl">🤖</div>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                How can I help you today?
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md">
-                Ask anything, from creative ideas to technical explanations. I'm here to assist!
-              </p>
-            </div>
-          ) : (
-            <>
-              <AnimatePresence>
-                {displayMessages.map((message, index) => (
-                  <motion.div
-                    key={message.id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                    ref={index === displayMessages.length - 1 ? lastMessageRef : undefined}
-                  >
-                    {message.role === "user" ? (
-                      // User message - right-aligned with hover copy button
-                      <div className="max-w-[85%] group">
-                        <div className="relative">
-                          <div className="bg-blue-400 text-white rounded-3xl px-4 py-3 shadow-sm">
-                            <p className="text-lg leading-relaxed whitespace-pre-wrap break-all" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                              {toDisplayString((message as any).content)}
-                            </p>
-                          </div>  
-                          {/* Hover copy button for user messages */}
-                          <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <button
-                              onClick={() => copyToClipboard(toDisplayString((message as any).content), message.id || '')}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            >
-                              {copiedMessageId === message.id ? (
-                                <Check className="h-4 w-4 text-green-600 transition-transform duration-200 scale-110" />
-                              ) : (
-                                <Copy className="h-4 w-4" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      // Assistant message - left-aligned; show copy/share only after streaming completes
-                      <div className="max-w-[98%]">
-                        <div className="py-2">
-                          <p className="text-lg leading-relaxed whitespace-pre-wrap break-all text-gray-800 dark:text-gray-200" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                            {toDisplayString((message as any).content)}
-                          </p>
-                          {/* Copy and share appear only when the AI response is complete */}
-                          {!(message as any)?.isStreaming && (message as any)?.type !== 'error' && !!toDisplayString((message as any).content)?.trim() && (
-                            <div className="flex items-center space-x-2 mt-3">
-                              <div className="relative group">
-                                <button
-                                  onClick={() => copyToClipboard(toDisplayString((message as any).content), message.id || '')}
-                                  className="flex items-center px-2 py-1 rounded-md border border-transparent hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                                >
-                                  {copiedMessageId === message.id ? (
-                                    <Check className="h-4 w-4 text-green-600" />
-                                  ) : (
-                                    <Copy className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                                  )}
-                                </button>
-                                {/* Tooltip */}
-                                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                                  Copy
-                                </span>
-                              </div>
-                              <div className="relative group">
-                                <button
-                                  onClick={() => shareMessage(toDisplayString((message as any).content))}
-                                  className="flex items-center px-2 py-1 rounded-md border border-transparent hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                                >
-                                  <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                                </button>
-                                {/* Tooltip */}
-                                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                                  Share
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              {/* Show loading indicator when sending */}
-              {(isSending || streamingState?.isStreaming) && (
+          <>
+            <AnimatePresence>
+              {displayMessages.map((message, index) => (
                 <motion.div
+                  key={message.id || index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  ref={index === displayMessages.length - 1 ? lastMessageRef : undefined}
                 >
-                  <div className="max-w-[85%]">
-                    <div className="py-2">
-                      <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800/50 rounded-3xl px-4 py-3">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  {message.role === "user" ? (
+                    // User message - right-aligned with hover copy button
+                    <div className="max-w-[85%] group">
+                      <div className="relative">
+                        <div className="bg-blue-400 text-white rounded-3xl px-4 py-3 shadow-sm">
+                          <p className="text-lg leading-relaxed whitespace-pre-wrap break-all" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                            {toDisplayString((message as any).content)}
+                          </p>
+                        </div>  
+                        {/* Hover copy button for user messages */}
+                        <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <button
+                            onClick={() => copyToClipboard(toDisplayString((message as any).content), message.id || '')}
+                            className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          >
+                            {copiedMessageId === message.id ? (
+                              <Check className="h-4 w-4 text-green-600 transition-transform duration-200 scale-110" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </button>
                         </div>
-                        <span className="text-sm text-gray-500">Thinking...</span>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    // Assistant message - left-aligned; show copy/share only after streaming completes
+                    <div className="max-w-[98%]">
+                      <div className="py-2">
+                        <p className="text-lg leading-relaxed whitespace-pre-wrap break-all text-gray-800 dark:text-gray-200" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                          {toDisplayString((message as any).content)}
+                        </p>
+                        {/* Copy and share appear only when the AI response is complete */}
+                        {!(message as any)?.isStreaming && (message as any)?.type !== 'error' && !!toDisplayString((message as any).content)?.trim() && (
+                          <div className="flex items-center space-x-2 mt-3">
+                            <div className="relative group">
+                              <button
+                                onClick={() => copyToClipboard(toDisplayString((message as any).content), message.id || '')}
+                                className="flex items-center px-2 py-1 rounded-md border border-transparent hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                              >
+                                {copiedMessageId === message.id ? (
+                                  <Check className="h-4 w-4 text-green-600" />
+                                ) : (
+                                  <Copy className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                                )}
+                              </button>
+                              {/* Tooltip */}
+                              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                Copy
+                              </span>
+                            </div>
+                            <div className="relative group">
+                              <button
+                                onClick={() => shareMessage(toDisplayString((message as any).content))}
+                                className="flex items-center px-2 py-1 rounded-md border border-transparent hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                              >
+                                <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                              </button>
+                              {/* Tooltip */}
+                              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 text-xs text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                Share
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
-              )}
-            </>
-          )}
+              ))}
+            </AnimatePresence>
+
+            {/* Show loading indicator whenever sending/streaming, even with empty history */}
+            {(isSending || streamingState?.isStreaming) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-start"
+              >
+                <div className="max-w-[85%]">
+                  <div className="py-2">
+                    <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800/50 rounded-3xl px-4 py-3">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                      <span className="text-sm text-gray-500">Thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Minimal spacer when no messages and not streaming */}
+            {displayMessages.length === 0 && !(isSending || streamingState?.isStreaming) && (
+              <div className="pt-4" />
+            )}
+          </>
           <div ref={messagesEndRef} className="scroll-mb-40" aria-hidden="true" />
         </div>
       </div>
 
-      {/* Sticky Input Box at Bottom */}
-      <div className="sticky bottom-5 backdrop-blur-sm z-10">
-        <div className="max-w-3xl mx-auto p-2 border border-gray-300 dark:border-gray-700/50 rounded-3xl shadow-md bg-gray-100 dark:bg-[#303030]">
+      {/* Input Box: centered initially; sticky at bottom after first send */}
+      <div className={`transition-all duration-300 ease-out ${docked ? 'sticky bottom-0 z-20 backdrop-blur-sm' : ''}`}>
+        {isNewChat && (
+          <div className="max-w-3xl mx-auto px-2 mb-9">
+            <p className="text-center text-gray-700 dark:text-gray-200 text-2xl md:text-3xl ">{slogan}</p>
+          </div>
+        )}
+        <div className="max-w-3xl mx-auto p-3 border border-gray-300 dark:border-gray-700/50 rounded-[32px] shadow-md bg-gray-100 dark:bg-[#303030]">
+          {(isLoading || isSending || streamingState?.isStreaming) && (
+            <ChatLoadingIndicator className="mb-2" />
+          )}
           <form onSubmit={handleSend} className="relative flex items-end space-x-3">
             {/* "+" button with dropdown menu */}
             <div className="relative" ref={menuRef}>
@@ -534,7 +587,7 @@ export default function Chat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Need help? Ask away…"
-                className="w-full bg-gray-100 custom-scrollbar pr-2 dark:bg-[#303030] border-none outline-none resize-none rounded-2xl px-2 py-1 text-l leading-6 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 min-h-[6px] max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent"
+                className="w-full bg-gray-100 dark:bg-[#303030] custom-scrollbar pr-2 border-none outline-none resize-none rounded-3xl px-2 py-2 text-l leading-6 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 min-h-[6px] max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent "
                 rows={1}
               />
               
@@ -559,6 +612,9 @@ export default function Chat() {
           </form>
         </div>
       </div>
+
+      {/* Bottom spacer collapses after docking */}
+      <div className={`transition-[height] duration-300 ease-out ${docked ? 'h-0' : 'h-1/2'}`} />
 
       {/* Share Modal */}
       {!isNewChat && currentChatId && (

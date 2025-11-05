@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Share2, Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import chatsService from '@/services/chatsService';
-import { ChatLoadingSkeleton } from '@/components/ui/ChatMessageSkeleton';
+import ChatLoadingIndicator from '@/components/ui/ChatLoadingIndicator';
 import { useSafeBackground } from '@/hooks/useSafeBackground';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -183,8 +183,8 @@ export default function ShareChat() {
           )}
 
           {isLoading ? (
-            <div className="space-y-4">
-              <ChatLoadingSkeleton />
+            <div className="flex justify-center py-6">
+              <ChatLoadingIndicator />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full pt-20 text-center">

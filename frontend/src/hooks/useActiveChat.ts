@@ -288,6 +288,8 @@ export function useActiveChat(): UseActiveChatReturn {
         console.warn('Chat not found:', err);
         errorMessage = 'Chat not found';
         setMessages([]);
+        // Clear current chat selection so subsequent sends create a new chat
+        setCurrentChatId(null);
         setCurrentChat(null);
         // Clear stale cache for this chat
         clearAllCachedActiveMessages();

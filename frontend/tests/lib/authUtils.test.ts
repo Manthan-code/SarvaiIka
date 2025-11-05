@@ -1,6 +1,6 @@
 import { refreshAuthToken, logout, isAuthenticated } from '../../src/lib/authUtils';
 import { useAuthStore } from '../../src/stores/authStore';
-import supabase from '../services/supabaseClient';
+import supabase from '@/services/supabaseClient';
 
 // Mock authRefreshManager
 jest.mock('@/lib/authRefresh', () => ({

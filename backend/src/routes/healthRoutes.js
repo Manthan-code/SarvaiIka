@@ -1,14 +1,59 @@
 // File: backend/src/routes/healthRoutes.js
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const redisClient = require('../redis/unifiedRedisClient.js');
 const qdrantClient = require('../db/qdrant/client.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const logger = require('../config/logger.js');
 
 const router = express.Router();
 
 // GET /health
 router.get('/', async (req, res, next) => {
   try {
+    // Keepalive token validation (optional)
+    const incomingToken = (req.query?.t || req.headers['x-keepalive-token'] || '').toString();
+    const expectedToken = process.env.KEEPALIVE_TOKEN;
+    const tokenProvided = Boolean(incomingToken);
+
+    if (tokenProvided) {
+      const source = req.query?.t ? 'query' : 'header';
+      if (expectedToken) {
+        if (incomingToken === expectedToken) {
+          // Log successful keepalive ping
+          try {
+            logger.info('Keepalive ping received: valid token', {
+              ip: req.ip,
+              source,
+              path: req.originalUrl,
+            });
+          } catch (_) {}
+          return res.status(200).json({ ok: true, ts: new Date().toISOString() });
+        }
+        // Log invalid token attempt
+        try {
+          logger.warn('Keepalive ping received: invalid token', {
+            ip: req.ip,
+            source,
+            path: req.originalUrl,
+          });
+        } catch (_) {}
+        return res.status(401).json({ ok: false, error: 'Invalid token' });
+      } else {
+        // No token configured; allow for safety in dev
+        try {
+          logger.info('Keepalive ping received: no token configured', {
+            ip: req.ip,
+            source,
+            path: req.originalUrl,
+          });
+        } catch (_) {}
+        return res.status(200).json({ ok: true, info: 'Health check (no token configured)' });
+      }
+    }
+
     // Redis status
     let redisStatus = 'disconnected';
     try {

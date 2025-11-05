@@ -28,6 +28,7 @@ jest.mock('lucide-react', () => ({
   ArrowUp: () => <div data-testid="arrow-up-icon" />,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon" />,
   Trash2: () => <div data-testid="trash-icon" />,
+  Loader2: () => <div data-testid="loader2-icon" />,
 }));
 
 // Mock UI components
@@ -48,9 +49,7 @@ jest.mock('../../src/components/ui/dropdown-menu', () => ({
   DropdownMenuTrigger: ({ children }: any) => <div data-testid="dropdown-trigger">{children}</div>,
 }));
 
-jest.mock('../../src/components/ui/ChatMessageSkeleton', () => ({
-  ChatLoadingSkeleton: () => <div data-testid="chat-loading-skeleton">Loading...</div>,
-}));
+// Legacy skeleton removed; no longer mocked
 
 // Mock hooks
 const mockUseActiveChat = {
@@ -134,16 +133,16 @@ describe('Chat Component', () => {
     expect(screen.getByText('Test Chat')).toBeInTheDocument();
   });
 
-  it('displays welcome message when no messages exist', () => {
+  it('does not display old welcome message in empty state', () => {
     renderChat();
-    expect(screen.getByText('How can I help you today?')).toBeInTheDocument();
-    expect(screen.getByText('Ask anything, from creative ideas to technical explanations. I\'m here to assist!')).toBeInTheDocument();
+    expect(screen.queryByText('How can I help you today?')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Ask anything, from creative ideas to technical explanations/)).not.toBeInTheDocument();
   });
 
-  it('displays loading skeleton when loading', () => {
+  it('displays loading indicator when loading', () => {
     mockUseActiveChat.isLoading = true;
     renderChat();
-    expect(screen.getByTestId('chat-loading-skeleton')).toBeInTheDocument();
+    expect(screen.getByTestId('chat-loading-indicator')).toBeInTheDocument();
   });
 
   it('displays error message when error exists', () => {
