@@ -351,10 +351,12 @@ export default function Chat() {
     lastUserInputRef.current = messageText;
 
     try {
-      // Use streaming endpoint; pass sessionId when available
-      await sendStreamMessage(messageText, currentChatId || undefined);
-      // Ensure viewport follows the streaming response
+      // Kick off streaming; do not await to avoid delaying UI follow
+      sendStreamMessage(messageText, currentChatId || undefined);
+      // One-time autoscroll for the user's send
       scrollToBottom();
+      // Disable further auto-scroll during token generation so user can scroll freely
+      setAutoScrollEnabled(false);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -368,6 +370,15 @@ export default function Chat() {
       handleSend();
     }
   };
+
+  // Disable auto-scroll while streaming; re-enable after completion for next send
+  useEffect(() => {
+    if (streamingState?.isStreaming) {
+      setAutoScrollEnabled(false);
+    } else {
+      setAutoScrollEnabled(true);
+    }
+  }, [streamingState?.isStreaming]);
 
   const startNewChat = () => {
     navigate('/chat');
