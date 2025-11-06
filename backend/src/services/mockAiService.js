@@ -5,40 +5,43 @@
 
 class MockAiService {
   constructor() {
+    const speed = (process.env.MOCK_AI_SPEED || 'fast').toLowerCase();
+    const speedScale = speed === 'fast' ? 0.2 : speed === 'normal' ? 1.0 : speed === 'slow' ? 2.0 : 0.2;
+    const adjust = (ms) => Math.max(5, Math.round(ms * speedScale));
     this.models = {
       'gpt-3.5-turbo': {
         name: 'GPT-3.5 Turbo (Mock)',
         maxTokens: 4096,
         costPerToken: 0.0015,
-        responseTime: 100, // ms per token
+        responseTime: adjust(100), // ms per token
         specialty: 'general'
       },
       'gpt-4': {
         name: 'GPT-4 (Mock)',
         maxTokens: 8192,
         costPerToken: 0.03,
-        responseTime: 150,
+        responseTime: adjust(150),
         specialty: 'complex reasoning'
       },
       'claude-3-sonnet': {
         name: 'Claude-3 Sonnet (Mock)',
         maxTokens: 200000,
         costPerToken: 0.003,
-        responseTime: 120,
+        responseTime: adjust(120),
         specialty: 'analysis'
       },
       'codellama-34b': {
         name: 'CodeLlama 34B (Mock)',
         maxTokens: 16384,
         costPerToken: 0.0008,
-        responseTime: 80,
+        responseTime: adjust(80),
         specialty: 'coding'
       },
       'dall-e-3': {
         name: 'DALL-E 3 (Mock)',
         maxTokens: 1024,
         costPerToken: 0.04,
-        responseTime: 200,
+        responseTime: adjust(200),
         specialty: 'image generation'
       }
     };

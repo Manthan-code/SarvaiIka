@@ -322,9 +322,7 @@ const EnhancedStreamingChat: React.FC<EnhancedStreamingChatProps> = memo(({
     }
   }, []);
   
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+  // Removed continuous auto-scroll during streaming; only scroll once on send
   
   // Auto-resize textarea
   useEffect(() => {
@@ -416,11 +414,14 @@ const EnhancedStreamingChat: React.FC<EnhancedStreamingChatProps> = memo(({
     playSound('send');
     
     try {
-      await sendMessage(message);
+      // Kick off streaming without awaiting to avoid delaying UI
+      sendMessage(message);
+      // One-time scroll to show the user's message and streaming start
+      scrollToBottom();
     } catch (error) {
       playSound('error');
     }
-  }, [input, streamingState.isStreaming, isComposing, sendMessage, playSound]);
+  }, [input, streamingState.isStreaming, isComposing, sendMessage, playSound, scrollToBottom]);
   
   // Handle copy to clipboard functionality is implemented above
   

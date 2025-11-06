@@ -62,12 +62,18 @@ class MockStreamingService extends EventEmitter {
    * Initialize streaming configuration
    */
   initializeStreamingConfig() {
+    const envMin = parseInt(process.env.MOCK_TOKEN_DELAY_MIN || '', 10);
+    const envMax = parseInt(process.env.MOCK_TOKEN_DELAY_MAX || '', 10);
+    const envVar = parseInt(process.env.MOCK_TOKEN_DELAY_VARIANCE || '', 10);
+    const min = Number.isFinite(envMin) ? envMin : 5;
+    const max = Number.isFinite(envMax) ? envMax : 25;
+    const variance = Number.isFinite(envVar) ? envVar : 10;
     return {
       // Streaming behavior settings
       tokenDelay: {
-        min: 50,
-        max: 200,
-        variance: 30
+        min,
+        max,
+        variance
       },
       
       // Chunk sizes for different content types
@@ -81,7 +87,7 @@ class MockStreamingService extends EventEmitter {
       // Progressive rendering settings
       progressiveRendering: {
         enabled: true,
-        updateInterval: 100, // ms
+        updateInterval: 30, // ms
         minChunkSize: 10 // characters
       },
       
@@ -323,12 +329,13 @@ class MockStreamingService extends EventEmitter {
    * Setup Server-Sent Events headers
    */
   setupSSEHeaders(res) {
+    if (res.headersSent) return;
     res.writeHead(200, {
-      'Content-Type': 'text/plain',
+      'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control',
+      'Access-Control-Allow-Headers': 'Cache-Control, Content-Type, Authorization, Accept, Origin',
       'X-Accel-Buffering': 'no' // Disable nginx buffering
     });
   }
@@ -340,7 +347,7 @@ class MockStreamingService extends EventEmitter {
     const config = this.streamingConfig.tokenDelay;
     const baseDelay = config.min + Math.random() * (config.max - config.min);
     const variance = (Math.random() - 0.5) * config.variance;
-    const delay = Math.max(10, baseDelay + variance);
+    const delay = Math.max(1, baseDelay + variance);
     
     // Adjust delay based on content type
     const typeMultipliers = {

@@ -13,10 +13,7 @@ const StreamingChat: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-  
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // Removed continuous auto-scroll during streaming; only scroll once on send
   
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +21,9 @@ const StreamingChat: React.FC = () => {
     
     const message = input;
     setInput('');
-    await sendMessage(message);
+    // Kick off streaming and perform one-time auto-scroll
+    sendMessage(message);
+    scrollToBottom();
   };
   
   return (
