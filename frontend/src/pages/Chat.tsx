@@ -346,9 +346,7 @@ export default function Chat() {
       <div className="flex items-center justify-between p-2.5 border-b border-gray-200 dark:border-gray-700 backdrop-blur-sm">
         <div className="flex items-center space-x-2">
           <h1 className="text-lg ml-4 text-gray-800 dark:text-gray-100">
-            {isNewChat
-              ? deriveTitle(lastUserInputRef.current) || 'New Chat'
-              : (currentChat?.title || 'Untitled Chat')}
+            {!isNewChat && (currentChat?.title || 'Untitled Chat')}
           </h1>
         </div>
         
