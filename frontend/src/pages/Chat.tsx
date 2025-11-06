@@ -197,12 +197,7 @@ export default function Chat() {
 
 
 
-  // Auto-scroll so latest message aligns at the top of the viewport
-  useEffect(() => {
-    if (autoScrollEnabled) {
-      scrollToBottom();
-    }
-  }, [displayMessages, streamingState?.isStreaming, autoScrollEnabled]);
+  // Removed continuous auto-scroll during streaming; we only scroll once on send
 
   // Detect user-initiated scroll and pause auto-scroll until user returns near latest
   useEffect(() => {
