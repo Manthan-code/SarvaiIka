@@ -1,5 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { updateCachedChat } from '../lib/localStorageUtils';
+import { refreshSidebar } from './useRecentChats';
 
 interface StreamingMessage {
   id: string;
@@ -21,6 +23,11 @@ interface StreamEventData {
   primaryModel?: string;
   model?: string;
   fullResponse?: string;
+  // Support various backend token shapes
+  content?: string;
+  delta?: string;
+  text?: string;
+  token?: string;
   url?: string;
   message?: string;
 }
@@ -33,9 +40,14 @@ export const useStreamingChat = () => {
     error: null
   });
   const [sessionIdFromStream, setSessionIdFromStream] = useState<string | null>(null);
-  // Allow bypassing Vite proxy to avoid ECONNRESET on long-lived POST streams
+  const sessionIdRef = useRef<string | null>(null);
+  // Prefer same-origin proxy in development to avoid CORS issues; allow opt-out
+  const DEV = (import.meta as any).env?.DEV;
+  const FORCE_ABSOLUTE = (import.meta as any).env?.VITE_FORCE_ABSOLUTE_API_BASE_URL;
   const API_BASE_URL: string = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000';
-  const streamingUrl = `${API_BASE_URL}/api/streaming/stream`;
+  const useProxy = DEV && !FORCE_ABSOLUTE;
+  const primaryStreamingUrl = useProxy ? '/api/streaming/stream' : `${API_BASE_URL}/api/streaming/stream`;
+  const altStreamingUrl = useProxy ? `${API_BASE_URL}/api/streaming/stream` : '/api/streaming/stream';
   
   const { session } = useAuthStore();
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -88,8 +100,11 @@ export const useStreamingChat = () => {
         return;
       }
       
-      // Start streaming
-    const response = await fetch(streamingUrl, {
+      // Start streaming (with simple fallback to alternate URL if first attempt fails)
+    let response: Response | undefined;
+    let lastError: unknown;
+    const attemptFetch = async (url: string) => {
+      return await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,6 +115,20 @@ export const useStreamingChat = () => {
         cache: 'no-cache',
         mode: 'cors'
       });
+    };
+    try {
+      response = await attemptFetch(primaryStreamingUrl);
+    } catch (err) {
+      lastError = err;
+      try {
+        response = await attemptFetch(altStreamingUrl);
+      } catch (err2) {
+        lastError = err2;
+      }
+    }
+    if (!response) {
+      throw lastError instanceof Error ? lastError : new Error('Failed to start streaming');
+    }
       
       if (!response.ok) {
         // Try to surface server error details
@@ -152,6 +181,33 @@ export const useStreamingChat = () => {
                   ? { ...msg, isStreaming: false }
                   : msg
               ));
+
+              // Persist recent chat entry and refresh sidebar (after generation)
+              try {
+                const effectiveChatId = sessionId || sessionIdRef.current || sessionIdFromStream;
+                const finalContent = currentMessageRef.current || '';
+                if (effectiveChatId && finalContent.trim()) {
+                  const nowIso = new Date().toISOString();
+                  const deriveTitle = (text: string) => {
+                    const src = (text || '').trim();
+                    if (!src) return 'Untitled Chat';
+                    return src.replace(/\s+/g, ' ').slice(0, 48);
+                  };
+                  updateCachedChat({
+                    id: effectiveChatId,
+                    title: deriveTitle(message),
+                    last_message_at: nowIso,
+                    created_at: nowIso,
+                    updated_at: nowIso,
+                    last_message: finalContent,
+                    unread_count: 0,
+                  } as any);
+                  // Trigger sidebar refresh
+                  try {
+                    refreshSidebar();
+                  } catch {}
+                }
+              } catch {}
               return;
             }
             
@@ -185,6 +241,7 @@ export const useStreamingChat = () => {
         const sid = (eventData as any)?.sessionId;
         if (typeof sid === 'string' && sid.length > 0) {
           setSessionIdFromStream(sid);
+          sessionIdRef.current = sid;
         }
         break;
       }
@@ -206,11 +263,25 @@ export const useStreamingChat = () => {
         
       case 'token': {
         const fullResponse = eventData?.fullResponse;
+        // Prefer fullResponse if provided; otherwise accumulate deltas/content
+        let nextContent: string | null = null;
         if (typeof fullResponse === 'string') {
+          nextContent = fullResponse;
           currentMessageRef.current = fullResponse;
+        } else {
+          const piece = (eventData?.delta
+            ?? eventData?.content
+            ?? eventData?.text
+            ?? eventData?.token);
+          if (typeof piece === 'string') {
+            currentMessageRef.current = (currentMessageRef.current || '') + piece;
+            nextContent = currentMessageRef.current;
+          }
+        }
+        if (typeof nextContent === 'string') {
           setMessages(prev => prev.map(msg => 
             msg.id === messageId 
-              ? { ...msg, content: fullResponse }
+              ? { ...msg, content: nextContent }
               : msg
           ));
         }

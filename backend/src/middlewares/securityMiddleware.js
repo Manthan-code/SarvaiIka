@@ -18,6 +18,14 @@ const createAdvancedRateLimit = (options = {}) => {
     skipFailedRequests = false
   } = options;
 
+  const setCorsHeaders = (res) => {
+    const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:8080').split(',').map(origin => origin.trim());
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0] || 'http://localhost:8080');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, X-Requested-With, Accept, Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  };
+
   return rateLimit({
     windowMs,
     max,
@@ -48,7 +56,8 @@ const createAdvancedRateLimit = (options = {}) => {
           }
         }
       );
-      
+      // Ensure CORS headers are present on error responses
+      setCorsHeaders(res);
       res.status(429).json({ error: message });
     }
   });
@@ -205,6 +214,14 @@ const requestSizeLimit = (maxSize = 1024 * 1024) => { // 1MB default
 const ipFilter = (options = {}) => {
   const { whitelist = [], blacklist = [] } = options;
   
+  const setCorsHeaders = (res) => {
+    const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:8080').split(',').map(origin => origin.trim());
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0] || 'http://localhost:8080');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, X-Requested-With, Accept, Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  };
+
   return (req, res, next) => {
     const clientIP = req.ip;
     
@@ -216,6 +233,7 @@ const ipFilter = (options = {}) => {
         method: req.method
       });
       
+      setCorsHeaders(res);
       return res.status(403).json({ error: 'Access denied' });
     }
     
@@ -227,6 +245,7 @@ const ipFilter = (options = {}) => {
         method: req.method
       });
       
+      setCorsHeaders(res);
       return res.status(403).json({ error: 'Access denied' });
     }
     

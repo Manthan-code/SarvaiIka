@@ -246,7 +246,7 @@ router.get('/:id', requireAuth, asyncHandler(async (req, res) => {
         last_message_at, 
         total_messages, 
         user_id,
-        chat_messages!inner(
+        chat_messages(
           id, 
           role, 
           content, 

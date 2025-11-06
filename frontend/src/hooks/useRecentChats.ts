@@ -145,12 +145,12 @@ export function useRecentChats(): UseRecentChatsReturn {
               }
             }
             const merged = Object.values(byId);
-            const sortedLimited = merged
-              .sort((a, b) => new Date(b.last_message_at || b.updated_at).getTime() - new Date(a.last_message_at || a.updated_at).getTime())
-              .slice(0, 20);
+            const sorted = merged
+              .sort((a, b) => new Date(b.last_message_at || b.updated_at).getTime() - new Date(a.last_message_at || a.updated_at).getTime());
             
-            setChats(sortedLimited);
-            setCachedRecentChats(sortedLimited);
+            // Let setCachedRecentChats apply the limit (now 30)
+            setChats(sorted.slice(0, 30));
+            setCachedRecentChats(sorted);
           } catch (bgError) {
             console.warn('Background sync failed, keeping cached data:', bgError);
             // Don't set error if we have cached data
@@ -205,7 +205,7 @@ export function useRecentChats(): UseRecentChatsReturn {
   const addChat = useCallback((newChat: CachedChat) => {
     // Optimistic update: add to UI immediately
     setChats(prevChats => {
-      const updatedChats = [newChat, ...prevChats.filter(c => c.id !== newChat.id)].slice(0, 20);
+      const updatedChats = [newChat, ...prevChats.filter(c => c.id !== newChat.id)].slice(0, 30);
       return updatedChats;
     });
     

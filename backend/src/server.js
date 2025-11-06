@@ -178,7 +178,13 @@ app.use('/api/chat', (req, res, next) => {
   }
   next();
 });
-app.use('/api', apiAbuseProtection);
+// Skip rate limiting for preflight requests to avoid CORS failures
+app.use('/api', (req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  return apiAbuseProtection(req, res, next);
+});
 
 // Input length validation for all routes
 app.use('/api', validateInputLength(50000)); // 50KB limit
@@ -224,6 +230,8 @@ app.post('/api/streaming/stream', async (req, res, next) => {
     return next(e);
   }
 });
+// Explicit CORS preflight for streaming endpoint to guarantee headers
+app.options('/api/streaming/stream', cors(corsOptions));
 app.use('/api/billing', billingRoutes);
 app.use('/api/errors', errorRoutes);
 // Handle trailing slash for error routes

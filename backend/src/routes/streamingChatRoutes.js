@@ -95,4 +95,16 @@ router.post('/stream', requireAuth, async (req, res) => {
   }
 });
 
+// Explicit CORS preflight handler for streaming route to ensure proper headers
+router.options('/stream', (req, res) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(s => s.trim()).filter(Boolean) || ['http://localhost:8080'];
+  const allowOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  res.setHeader('Access-Control-Allow-Origin', allowOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.status(204).end();
+});
+
 module.exports = router;

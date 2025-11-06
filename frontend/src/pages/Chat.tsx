@@ -70,6 +70,58 @@ export default function Chat() {
     clearMessages: clearStreamMessages
   } = useStreamingChat();
   
+  // After streaming completes, refresh persisted messages before clearing transient stream state
+  const postStreamRefreshGuardRef = useRef<string | null>(null);
+  const expectedAssistantContentRef = useRef<string | null>(null);
+  useEffect(() => {
+    // When streaming starts, reset guard
+    if (streamingState?.isStreaming) {
+      postStreamRefreshGuardRef.current = null;
+      expectedAssistantContentRef.current = null;
+      return;
+    }
+    // If streaming just ended and we have a session id, refresh that chat
+    const targetId = sessionId || currentChatId || chatId || null;
+    if (!streamingState?.isStreaming && targetId) {
+      if (postStreamRefreshGuardRef.current === targetId) return;
+      postStreamRefreshGuardRef.current = targetId;
+      // Capture final streamed assistant content to detect persistence
+      try {
+        const lastAssistant = [...(streamMessages as any)].reverse().find((m: any) => m?.role === 'assistant' && m?.type !== 'error');
+        const contentStr = lastAssistant && typeof (lastAssistant as any)?.content === 'string' ? (lastAssistant as any).content.trim() : null;
+        expectedAssistantContentRef.current = contentStr && contentStr.length > 0 ? contentStr : null;
+      } catch {}
+      const timer = setTimeout(() => {
+        try {
+          // If we're already viewing the chat, just refresh messages; otherwise switch
+          if (currentChatId === targetId) {
+            refreshMessages();
+          } else if (typeof targetId === 'string') {
+            switchChat(targetId);
+          }
+        } finally {
+          // Do not clear streaming messages yet; wait for persisted copy detection
+        }
+      }, 300); // small delay to allow backend persistence to complete
+      return () => clearTimeout(timer);
+    }
+  }, [streamingState?.isStreaming, sessionId, currentChatId, chatId, refreshMessages, switchChat, clearStreamMessages]);
+
+  // Clear transient stream only after we see the persisted assistant content in active messages
+  useEffect(() => {
+    const expected = expectedAssistantContentRef.current;
+    const targetId = postStreamRefreshGuardRef.current;
+    if (!expected || !targetId) return;
+    const hasPersisted = (messages || []).some((m: any) => {
+      return m?.role === 'assistant' && typeof m?.content === 'string' && m.content.trim() === expected;
+    });
+    if (hasPersisted) {
+      clearStreamMessages();
+      expectedAssistantContentRef.current = null;
+      postStreamRefreshGuardRef.current = null;
+    }
+  }, [messages, clearStreamMessages]);
+  
   // Ensure we never render duplicate keys and always display string content
   const toDisplayString = useCallback((value: any): string => {
     if (value == null) return '';
@@ -94,29 +146,39 @@ export default function Chat() {
   }, [messages, streamMessages]);
 
   
-  // Switch to chat when chatId changes
+  // Switch to chat when chatId changes, but avoid fetching during live streaming
   useEffect(() => {
     if (chatId && chatId !== currentChatId) {
       setIsNewChat(false);
-      switchChat(chatId);
-      // Clear any transient streaming messages when switching
-      clearStreamMessages();
+      // If we're in the middle of first-stream creation, wait to fetch
+      if (!streamingState?.isStreaming && !error) {
+        switchChat(chatId);
+        // Only clear transient streaming messages when not actively streaming
+        clearStreamMessages();
+      }
     } else if (!chatId) {
-      // Clear messages and reset state for new chat
+      // New chat state; avoid clearing while actively streaming to preserve user bubble
       setIsNewChat(true);
-      clearMessages();
-      clearStreamMessages();
+      if (!streamingState?.isStreaming) {
+        clearMessages();
+        clearStreamMessages();
+      }
       // Reset any error state
       // Note: currentChatId and currentChat will be cleared by clearMessages
     }
-  }, [chatId, currentChatId, switchChat, clearMessages, clearStreamMessages]);
+  }, [chatId, currentChatId, switchChat, clearMessages, clearStreamMessages, streamingState?.isStreaming, error]);
 
   // If a 404 occurs for the requested chat, treat as a new chat
   useEffect(() => {
     if (error === 'Chat not found') {
+      // Treat as a new chat and reset route to stop refetch loop
       setIsNewChat(true);
+      navigate('/chat', { replace: true });
+      // Clear message state to ensure clean slate
+      clearMessages();
+      clearStreamMessages();
     }
-  }, [error]);
+  }, [error, navigate, clearMessages, clearStreamMessages]);
 
   // Dock input when existing chat or any content present (including streaming);
   // undock only when truly empty new chat
@@ -405,7 +467,7 @@ export default function Chat() {
         {backgroundImage && (
           <div className="absolute inset-0 bg-white/70 dark:bg-black/70 pointer-events-none" />
         )}
-        <div className="max-w-3xl mx-auto py-6 space-y-6 relative z-10">
+        <div className="max-w-3xl w-full mx-auto py-6 space-y-6 relative z-10">
           {/* Error message (hide for new chat state) */}
           {error && !isNewChat && (
             <div className="flex justify-center py-4">
@@ -426,7 +488,7 @@ export default function Chat() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   ref={index === displayMessages.length - 1 ? lastMessageRef : undefined}
                 >
                   {message.role === "user" ? (
@@ -505,7 +567,7 @@ export default function Chat() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex justify-start"
+                className="flex justify-start w-full"
               >
                 <div className="max-w-[85%]">
                   <div className="py-2">

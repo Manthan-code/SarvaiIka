@@ -43,7 +43,9 @@ class ApiClient {
   private retryDelay: number;
 
   constructor(options: ApiClientOptions = {}) {
-    this.baseURL = options.baseURL || import.meta.env.VITE_API_BASE_URL || '';
+    // In development, prefer relative URLs to use Vite proxy (avoid CORS)
+    const preferProxyInDev = (import.meta as any).env?.DEV && !(import.meta as any).env?.VITE_FORCE_ABSOLUTE_API_BASE_URL;
+    this.baseURL = options.baseURL || (preferProxyInDev ? '' : (import.meta as any).env?.VITE_API_BASE_URL || '');
     this.timeout = options.timeout || 30000;
     this.retries = options.retries || 2;
     this.retryDelay = options.retryDelay || 1000;

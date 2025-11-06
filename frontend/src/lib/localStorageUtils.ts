@@ -85,7 +85,7 @@ const CACHE_EXPIRY = {
 
 // Cache limits
 const CACHE_LIMITS = {
-  RECENT_CHATS: 20, // Max 20 recent chats
+  RECENT_CHATS: 30, // Max 30 recent chats
   ACTIVE_MESSAGES: 40, // Max 40 latest messages per chat
 } as const;
 
@@ -155,17 +155,17 @@ function clearCachedData(key: string): void {
 // ========== RECENT CHATS CACHE (SWR) ==========
 
 /**
- * Get cached recent chats (max 20, persistent)
+ * Get cached recent chats (max 30, persistent)
  */
 export function getCachedRecentChats(): CachedChat[] | null {
   return getCachedData<CachedChat[]>(CACHE_KEYS.RECENT_CHATS, true); // Skip expiry check
 }
 
 /**
- * Cache recent chats with SWR strategy (max 20, persistent)
+ * Cache recent chats with SWR strategy (max 30, persistent)
  */
 export function setCachedRecentChats(chats: CachedChat[]): void {
-  // Limit to 20 most recent chats
+  // Limit to 30 most recent chats
   const limitedChats = chats
     .sort((a, b) => new Date(b.last_message_at || b.updated_at).getTime() - new Date(a.last_message_at || a.updated_at).getTime())
     .slice(0, CACHE_LIMITS.RECENT_CHATS);
@@ -182,7 +182,7 @@ export function addNewChatToRecent(newChat: CachedChat): void {
   // Remove if already exists (to avoid duplicates)
   const filteredChats = cachedChats.filter(chat => chat.id !== newChat.id);
   
-  // Add to beginning and limit to 20
+  // Add to beginning and limit to 30
   const updatedChats = [newChat, ...filteredChats].slice(0, CACHE_LIMITS.RECENT_CHATS);
   
   setCachedRecentChats(updatedChats);
