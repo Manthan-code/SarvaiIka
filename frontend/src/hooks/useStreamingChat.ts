@@ -100,35 +100,32 @@ export const useStreamingChat = () => {
         return;
       }
       
-      // Start streaming (with simple fallback to alternate URL if first attempt fails)
-    let response: Response | undefined;
-    let lastError: unknown;
-    const attemptFetch = async (url: string) => {
-      return await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ message, sessionId }),
-        cache: 'no-cache',
-        mode: 'cors'
-      });
-    };
-    try {
-      response = await attemptFetch(primaryStreamingUrl);
-    } catch (err) {
-      lastError = err;
-      try {
-        response = await attemptFetch(altStreamingUrl);
-      } catch (err2) {
-        lastError = err2;
+      // Start streaming with adaptive proxy-bypass fallback
+      const attemptFetch = async (url: string, controller?: AbortController) => {
+        return await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({ message, sessionId }),
+          cache: 'no-cache',
+          mode: 'cors',
+          signal: controller?.signal
+        });
+      };
+
+      let usedUrl = primaryStreamingUrl;
+      let controller = new AbortController();
+      let response = await attemptFetch(usedUrl, controller);
+      // If initial attempt fails, try alternate immediately
+      if (!response.ok) {
+        controller.abort();
+        controller = new AbortController();
+        usedUrl = altStreamingUrl;
+        response = await attemptFetch(usedUrl, controller);
       }
-    }
-    if (!response) {
-      throw lastError instanceof Error ? lastError : new Error('Failed to start streaming');
-    }
       
       if (!response.ok) {
         // Try to surface server error details
@@ -163,6 +160,21 @@ export const useStreamingChat = () => {
       
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
+      let receivedAnyEvent = false;
+
+      // If using dev proxy and no events arrive quickly, bypass proxy
+      let fallbackTimer: number | undefined;
+      const shouldSetBypassTimer = useProxy && usedUrl === primaryStreamingUrl;
+      if (shouldSetBypassTimer) {
+        // If nothing arrives within ~1.2s, retry against absolute URL
+        fallbackTimer = setTimeout(async () => {
+          if (!receivedAnyEvent) {
+            try {
+              controller.abort();
+            } catch {}
+          }
+        }, 1200) as unknown as number;
+      }
       
       while (true) {
         const { done, value } = await reader!.read();
@@ -173,6 +185,7 @@ export const useStreamingChat = () => {
         
         for (const line of lines) {
           if (line.startsWith('data: ')) {
+            receivedAnyEvent = true;
             const data = line.slice(6);
             if (data === '[DONE]') {
               setStreamingState(prev => ({ ...prev, isStreaming: false }));
@@ -220,6 +233,66 @@ export const useStreamingChat = () => {
           }
         }
       }
+      // If we aborted due to no events, try alt URL once
+      if (!receivedAnyEvent && shouldSetBypassTimer) {
+        try { clearTimeout(fallbackTimer!); } catch {}
+        controller = new AbortController();
+        usedUrl = altStreamingUrl;
+        const retryResp = await attemptFetch(usedUrl, controller);
+        if (!retryResp.ok) {
+          throw new Error(`Failed to start streaming (${retryResp.status})`);
+        }
+        const retryReader = retryResp.body?.getReader();
+        while (true) {
+          const { done, value } = await retryReader!.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') {
+                setStreamingState(prev => ({ ...prev, isStreaming: false }));
+                setMessages(prev => prev.map(msg => 
+                  msg.id === assistantMessageId 
+                    ? { ...msg, isStreaming: false }
+                    : msg
+                ));
+                try {
+                  const effectiveChatId = sessionId || sessionIdRef.current || sessionIdFromStream;
+                  const finalContent = currentMessageRef.current || '';
+                  if (effectiveChatId && finalContent.trim()) {
+                    const nowIso = new Date().toISOString();
+                    const deriveTitle = (text: string) => {
+                      const src = (text || '').trim();
+                      if (!src) return 'Untitled Chat';
+                      return src.replace(/\s+/g, ' ').slice(0, 48);
+                    };
+                    updateCachedChat({
+                      id: effectiveChatId,
+                      title: deriveTitle(message),
+                      last_message_at: nowIso,
+                      created_at: nowIso,
+                      updated_at: nowIso,
+                      last_message: finalContent,
+                      unread_count: 0,
+                    } as any);
+                    try { refreshSidebar(); } catch {}
+                  }
+                } catch {}
+                return;
+              }
+              try {
+                const parsed = JSON.parse(data);
+                handleStreamEvent(parsed, assistantMessageId);
+              } catch (e) {
+                console.warn('Failed to parse stream data:', data);
+              }
+            }
+          }
+        }
+      }
+      try { if (fallbackTimer) clearTimeout(fallbackTimer); } catch {}
       
     } catch (error) {
       console.error('Streaming error:', error);

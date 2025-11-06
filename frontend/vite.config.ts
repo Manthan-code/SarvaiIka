@@ -12,6 +12,17 @@ export default defineConfig(({ mode }) => ({
           target: 'http://localhost:5000',
           changeOrigin: true,
           secure: false,
+          ws: true,
+          configure: (proxy) => {
+            // Nudge proxies to avoid buffering SSE
+            proxy.on('proxyRes', (proxyRes) => {
+              try {
+                proxyRes.headers['X-Accel-Buffering'] = 'no';
+                proxyRes.headers['Cache-Control'] = 'no-cache';
+                proxyRes.headers['Connection'] = 'keep-alive';
+              } catch {}
+            });
+          }
         },
       },
     },

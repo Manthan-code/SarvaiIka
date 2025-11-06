@@ -38,6 +38,7 @@ export default function Chat() {
   const [showMenu, setShowMenu] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const lastUserInputRef = useRef<string>('');
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
   
 
   
@@ -198,8 +199,23 @@ export default function Chat() {
 
   // Auto-scroll so latest message aligns at the top of the viewport
   useEffect(() => {
-    scrollToBottom();
-  }, [displayMessages, streamingState?.isStreaming]);
+    if (autoScrollEnabled) {
+      scrollToBottom();
+    }
+  }, [displayMessages, streamingState?.isStreaming, autoScrollEnabled]);
+
+  // Detect user-initiated scroll and pause auto-scroll until user returns near latest
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+    const onScroll = () => {
+      // With flex-col-reverse, newest content is near the top; treat small scrollTop as "near latest"
+      const nearLatest = container.scrollTop <= 24; // ~one line height threshold
+      setAutoScrollEnabled(nearLatest);
+    };
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [chatContainerRef]);
 
   // Auto-resize textarea based on content
   useEffect(() => {
