@@ -23,18 +23,20 @@ router.post('/stream', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
-    // Set up SSE headers (align with global CORS)
-    const origin = req.headers.origin || process.env.CORS_ORIGINS?.split(',')[0] || 'http://localhost:8080';
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Credentials': 'true',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, Pragma, X-Requested-With, Accept, Origin',
-      'Vary': 'Origin'
-    });
+  // Set up SSE headers (align with global CORS)
+  const origin = req.headers.origin || process.env.CORS_ORIGINS?.split(',')[0] || 'http://localhost:8080';
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    // Disable proxy buffering (e.g., Nginx) to ensure real-time chunks
+    'X-Accel-Buffering': 'no',
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, Pragma, X-Requested-With, Accept, Origin',
+    'Vary': 'Origin'
+  });
     
     // Send initial routing info, then ensure a supported Gemini model for all plans
     const computedRoute = await modelRouter.routeQuery(message, userPlan);
@@ -80,6 +82,7 @@ router.post('/stream', requireAuth, async (req, res) => {
         message,
         sessionId,
         userId,
+        userPlan,
         res
       });
     }

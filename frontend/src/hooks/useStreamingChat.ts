@@ -336,6 +336,14 @@ export const useStreamingChat = () => {
         
       case 'token': {
         const fullResponse = eventData?.fullResponse;
+        const ts = (eventData as any)?.ts as number | undefined;
+        if (typeof ts === 'number') {
+          try {
+            const iso = new Date(ts).toISOString();
+            // Lightweight timestamp logging to validate throughput
+            console.debug('[stream] token at', iso);
+          } catch {}
+        }
         // Prefer fullResponse if provided; otherwise accumulate deltas/content
         let nextContent: string | null = null;
         if (typeof fullResponse === 'string') {

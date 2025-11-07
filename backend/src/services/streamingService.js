@@ -63,7 +63,7 @@ class StreamingService {
     return this.resolvedGeminiModel;
   }
   
-  async streamResponse({ route, message, sessionId, userId, res }) {
+  async streamResponse({ route, message, sessionId, userId, userPlan, res }) {
     try {
       // Get conversation history (creates new chat if sessionId missing)
       const conversation = await this.conversationManager.getConversation(sessionId, userId);
@@ -87,7 +87,9 @@ class StreamingService {
       let success = false;
       let currentModel = route.primaryModel;
       
-      for (const model of [route.primaryModel, ...route.fallbackModels]) {
+      const tryModels = [route.primaryModel, ...route.fallbackModels].filter(Boolean);
+      const startTime = Date.now();
+      for (const model of tryModels) {
         try {
           currentModel = model;
           res.write(`data: ${JSON.stringify({ 
@@ -112,7 +114,7 @@ class StreamingService {
           
           // Use an effective route that sets the selected model as primary for the adapter
           const effectiveRoute = { ...route, primaryModel: currentModel };
-          await adapter({ route: effectiveRoute, message, conversation, userId, sessionId: effectiveSessionId, res });
+          await adapter({ route: effectiveRoute, message, conversation, userId, sessionId: effectiveSessionId, userPlan, res, startTime });
           success = true;
           break;
           
@@ -140,7 +142,7 @@ class StreamingService {
     }
   }
   
-  async streamOpenAI({ route, message, conversation, userId, sessionId, res }) {
+  async streamOpenAI({ route, message, conversation, userId, sessionId, userPlan, res, startTime }) {
     if (!this.hasValidOpenAIKey || !this.openai) {
       throw new Error(`OpenAI API key is invalid or missing - cannot use model ${route.primaryModel}`);
     }
@@ -159,6 +161,7 @@ class StreamingService {
     });
     
     let fullResponse = '';
+    let firstTokenTs = 0;
     
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
@@ -166,16 +169,27 @@ class StreamingService {
         fullResponse += content;
         
         // Send token to client
+        const ts = Date.now();
+        if (!firstTokenTs) {
+          firstTokenTs = ts;
+          const latencyMs = ts - (startTime || ts);
+          // Warn about high time-to-first-token for known slow tiers/models
+          if (latencyMs > 1500) {
+            const plan = (userPlan || 'unknown').toLowerCase();
+            logger.warn(`Slow TTFB (${latencyMs}ms) for model ${route.primaryModel} [plan=${plan}]. Consider upgrading to a paid tier for faster streaming.`);
+          }
+        }
         res.write(`data: ${JSON.stringify({ 
           type: 'token', 
-          data: { content, fullResponse }
+          data: { content, fullResponse, ts }
         })}\n\n`);
         if (typeof res.flush === 'function') {
           try { res.flush(); } catch {}
         }
         
         // Save incremental progress
-        await this.conversationManager.saveIncremental(sessionId, userId, content);
+        // Do not await to avoid blocking streaming loop
+        try { this.conversationManager.saveIncremental(sessionId, userId, content); } catch {}
       }
     }
     
@@ -183,7 +197,7 @@ class StreamingService {
     await this.conversationManager.saveMessage(sessionId, userId, message, fullResponse, route.primaryModel);
   }
 
-  async streamGemini({ route, message, conversation, userId, sessionId, res }) {
+  async streamGemini({ route, message, conversation, userId, sessionId, userPlan, res, startTime }) {
     if (!this.hasValidGeminiKey || !this.freeGemini) {
       throw new Error(`Gemini API key is invalid or missing - cannot use model ${route.primaryModel}`);
     }
@@ -204,49 +218,95 @@ class StreamingService {
       }
       const conversationText = `${systemPrompt}\n\n${historyText}User: ${message}`;
 
-      // Primary attempt: contents-based call (matches newer SDK signature)
+      // Try streaming via SDK first
       let fullText = '';
+      let firstTokenTs = 0;
+      let streamedAny = false;
       try {
-        const result = await model.generateContent({
+        const result = await model.generateContentStream({
           contents: [
             { role: 'user', parts: [{ text: conversationText }] }
           ]
         });
-        const response = await result.response;
-        fullText = response?.text() || '';
-      } catch (primaryErr) {
-        // Fallback 1: parts array
-        logger.warn('Gemini primary generateContent failed, retrying with parts array:', primaryErr?.message || primaryErr);
+        for await (const event of result.stream) {
+          // Extract incremental text safely across SDK versions
+          let piece = '';
+          try {
+            const parts = event?.candidates?.[0]?.content?.parts || [];
+            piece = parts.map(p => p?.text || '').join('');
+          } catch {}
+          if (!piece && typeof event?.text === 'string') {
+            piece = event.text;
+          }
+          if (!piece) continue;
+          streamedAny = true;
+          fullText += piece;
+          const ts = Date.now();
+          if (!firstTokenTs) {
+            firstTokenTs = ts;
+            const latencyMs = ts - (startTime || ts);
+            if (latencyMs > 1500) {
+              const plan = (userPlan || 'unknown').toLowerCase();
+              logger.warn(`Slow TTFB (${latencyMs}ms) for Gemini model ${modelId} [plan=${plan}]. Upgrading to paid tier improves streaming speed.`);
+            }
+          }
+          res.write(`data: ${JSON.stringify({ type: 'token', data: { content: piece, fullResponse: fullText, ts } })}\n\n`);
+          if (typeof res.flush === 'function') {
+            try { res.flush(); } catch {}
+          }
+          // Non-blocking incremental save
+          try { this.conversationManager.saveIncremental(sessionId, userId, piece); } catch {}
+        }
+      } catch (streamErr) {
+        logger.warn('Gemini SDK streaming failed; falling back to non-streaming generateContent:', streamErr?.message || streamErr);
+      }
+
+      if (!streamedAny) {
+        // Fallback to non-streaming request, then re-chunk locally
         try {
-          const result = await model.generateContent([{ text: conversationText }]);
+          const result = await model.generateContent({
+            contents: [
+              { role: 'user', parts: [{ text: conversationText }] }
+            ]
+          });
           const response = await result.response;
           fullText = response?.text() || '';
-        } catch (secondaryErr) {
-          // Fallback 2: simple string prompt
-          logger.warn('Gemini secondary generateContent failed, retrying with string prompt:', secondaryErr?.message || secondaryErr);
+        } catch (primaryErr) {
+          // Fallback chain
+          logger.warn('Gemini primary generateContent failed, retrying with parts array:', primaryErr?.message || primaryErr);
           try {
-            const result = await model.generateContent(conversationText);
+            const result = await model.generateContent([{ text: conversationText }]);
             const response = await result.response;
             fullText = response?.text() || '';
-          } catch (tertiaryErr) {
-            logger.warn('Gemini tertiary generateContent failed, attempting REST fallback:', tertiaryErr?.message || tertiaryErr);
-            fullText = await this.geminiGenerateViaRest(modelId, conversationText);
+          } catch (secondaryErr) {
+            logger.warn('Gemini secondary generateContent failed, retrying with string prompt:', secondaryErr?.message || secondaryErr);
+            try {
+              const result = await model.generateContent(conversationText);
+              const response = await result.response;
+              fullText = response?.text() || '';
+            } catch (tertiaryErr) {
+              logger.warn('Gemini tertiary generateContent failed, attempting REST fallback:', tertiaryErr?.message || tertiaryErr);
+              fullText = await this.geminiGenerateViaRest(modelId, conversationText);
+            }
           }
         }
-      }
 
-      if (!fullText) {
-        throw new Error('Gemini returned empty response');
-      }
+        if (!fullText) {
+          throw new Error('Gemini returned empty response');
+        }
 
-      // Stream response in small chunks to the client
-      const words = fullText.split(/(\s+)/); // keep spaces
-      let assembled = '';
-      for (const chunk of words) {
-        if (!chunk) continue;
-        assembled += chunk;
-        res.write(`data: ${JSON.stringify({ type: 'token', data: { content: chunk, fullResponse: assembled } })}\n\n`);
-        await this.conversationManager.saveIncremental(sessionId, userId, chunk);
+        const words = fullText.split(/(\s+)/); // keep spaces
+        let assembled = '';
+        for (const chunk of words) {
+          if (!chunk) continue;
+          assembled += chunk;
+          const ts = Date.now();
+          res.write(`data: ${JSON.stringify({ type: 'token', data: { content: chunk, fullResponse: assembled, ts } })}\n\n`);
+          if (typeof res.flush === 'function') {
+            try { res.flush(); } catch {}
+          }
+          try { this.conversationManager.saveIncremental(sessionId, userId, chunk); } catch {}
+        }
       }
 
       await this.conversationManager.saveMessage(sessionId, userId, message, fullText, modelId);
