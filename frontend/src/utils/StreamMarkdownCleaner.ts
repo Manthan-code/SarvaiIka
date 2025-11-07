@@ -28,6 +28,19 @@ export class StreamMarkdownCleaner {
     return hasLatexCmd || hasSuperOrSub || hasEquality || hasGreekWord;
   }
 
+  // Normalize common LaTeX command words by prefixing a backslash when missing
+  private normalizeLatexCommands(str: string): string {
+    const cmds = ['frac','sqrt','int','sum','prod','lim','log','sin','cos','tan','cdot','ldots','leq','geq','neq','approx','sim','propto',
+      'alpha','beta','gamma','delta','epsilon','zeta','eta','theta','iota','kappa','lambda','mu','nu','xi','omicron','pi','rho','sigma','tau','upsilon','phi','chi','psi','omega'];
+    const pattern = new RegExp(`\\b(${cmds.join('|')})\\b`, 'g');
+    return str.replace(pattern, (match: string, cmd: string, offset: number, full: string) => {
+      // If already prefixed with backslash, keep as is
+      const prev = offset > 0 ? full[offset - 1] : '';
+      if (prev === '\\') return match; // already \cmd
+      return `\\${cmd}`;
+    });
+  }
+
   // Process a streaming chunk and return cleaned text
   processChunk(input: string): string {
     if (!input) return '';
@@ -85,7 +98,22 @@ export class StreamMarkdownCleaner {
 
       // If currently inside math contexts, pass through
       if (this.inInlineMath || this.inBlockMath) {
-        out += ch;
+        // Within math, normalize command tokens when they appear without a backslash
+        if (/[A-Za-z]/.test(ch)) {
+          // capture contiguous word
+          let word = ch;
+          let k = i + 1;
+          for (; k < input.length; k++) {
+            const c = input[k];
+            if (!/[A-Za-z]/.test(c)) break;
+            word += c;
+          }
+          const normalized = this.normalizeLatexCommands(word);
+          out += normalized;
+          i = k - 1;
+        } else {
+          out += ch;
+        }
         if (ch === '\n') this.atLineStart = true; else this.atLineStart = false;
         continue;
       }
@@ -121,7 +149,8 @@ export class StreamMarkdownCleaner {
             phrase += c;
           }
           if (this.looksLikeMath(phrase)) {
-            out += `$${phrase}$`;
+            const normalizedPhrase = this.normalizeLatexCommands(phrase);
+            out += `$${normalizedPhrase}$`;
             i = k - 1;
             this.atLineStart = false;
             continue;
