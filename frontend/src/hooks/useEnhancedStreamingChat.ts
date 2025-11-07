@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import StreamMarkdownCleaner from '@/utils/StreamMarkdownCleaner';
 import { useAuthStore } from '@/stores/authStore';
 
 interface Message {
@@ -425,6 +426,9 @@ export const useEnhancedStreamingChat = (options: UseEnhancedStreamingChatOption
       let currentModel = '';
       let metadata: Record<string, unknown> = {};
       
+      // Initialize stream markdown cleaner (per stream)
+      const streamCleaner = new StreamMarkdownCleaner();
+
       // Optimized progress tracking with reduced update frequency
       const startTime = Date.now();
       let progressInterval: NodeJS.Timeout | null = null;
@@ -519,9 +523,9 @@ export const useEnhancedStreamingChat = (options: UseEnhancedStreamingChatOption
                     const fullResponse: string | undefined = (eventData.fullResponse ?? eventData.data?.fullResponse) as string | undefined;
 
                     if (fullResponse && typeof fullResponse === 'string') {
-                      assistantMessage.content = fullResponse;
+                      assistantMessage.content = streamCleaner.processChunk(fullResponse);
                     } else if (typeof content === 'string' && content.length > 0) {
-                      assistantMessage.content += content;
+                      assistantMessage.content += streamCleaner.processChunk(content);
                     }
 
                     // Debug: log token arrival cadence (dev-only)

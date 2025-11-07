@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import StreamMarkdownCleaner from '@/utils/StreamMarkdownCleaner';
 import { useAuthStore } from '../stores/authStore';
 import { updateCachedChat } from '../lib/localStorageUtils';
 import { refreshSidebar } from './useRecentChats';
@@ -83,6 +84,8 @@ export const useStreamingChat = () => {
     };
     
     setMessages(prev => [...prev, assistantMessage]);
+    // Initialize stream cleaner per stream
+    const cleanerRef = { current: new StreamMarkdownCleaner() };
     setStreamingState({ isStreaming: true, currentModel: null, error: null });
     currentMessageRef.current = '';
     
@@ -226,7 +229,7 @@ export const useStreamingChat = () => {
             
             try {
               const parsed = JSON.parse(data);
-              handleStreamEvent(parsed, assistantMessageId);
+              handleStreamEvent(parsed, assistantMessageId, cleanerRef.current);
             } catch (e) {
               console.warn('Failed to parse stream data:', data);
             }
@@ -283,8 +286,8 @@ export const useStreamingChat = () => {
                 return;
               }
               try {
-                const parsed = JSON.parse(data);
-                handleStreamEvent(parsed, assistantMessageId);
+              const parsed = JSON.parse(data);
+              handleStreamEvent(parsed, assistantMessageId, cleanerRef.current);
               } catch (e) {
                 console.warn('Failed to parse stream data:', data);
               }
@@ -306,7 +309,7 @@ export const useStreamingChat = () => {
     }
   }, [session]);
 
-  const handleStreamEvent = useCallback((event: { type: string; data?: unknown; [key: string]: unknown }, messageId: string) => {
+  const handleStreamEvent = useCallback((event: { type: string; data?: unknown; [key: string]: unknown }, messageId: string, cleaner?: StreamMarkdownCleaner) => {
     const eventData = event.data as StreamEventData;
     
     switch (event.type) {
@@ -347,15 +350,17 @@ export const useStreamingChat = () => {
         // Prefer fullResponse if provided; otherwise accumulate deltas/content
         let nextContent: string | null = null;
         if (typeof fullResponse === 'string') {
-          nextContent = fullResponse;
-          currentMessageRef.current = fullResponse;
+          const processed = cleaner ? cleaner.processChunk(fullResponse) : fullResponse;
+          nextContent = processed;
+          currentMessageRef.current = processed;
         } else {
           const piece = (eventData?.delta
             ?? eventData?.content
             ?? eventData?.text
             ?? eventData?.token);
           if (typeof piece === 'string') {
-            currentMessageRef.current = (currentMessageRef.current || '') + piece;
+            const processedPiece = cleaner ? cleaner.processChunk(piece) : piece;
+            currentMessageRef.current = (currentMessageRef.current || '') + processedPiece;
             nextContent = currentMessageRef.current;
           }
         }
