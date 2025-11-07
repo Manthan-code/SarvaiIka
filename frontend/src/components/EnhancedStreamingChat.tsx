@@ -4,6 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo, forwardRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send,
@@ -203,10 +207,10 @@ const MessageBubble = memo(forwardRef<HTMLDivElement, MessageBubbleProps>(({ mes
           className={cn(
             'relative max-w-[80%] rounded-2xl px-4 py-3 shadow-sm',
             isUser
-              ? 'bg-primary text-primary-foreground rounded-br-md'
+              ? 'bg-blue-600 text-white'
               : isError
-              ? 'bg-destructive/10 border border-destructive/20 text-destructive rounded-bl-md'
-              : 'bg-muted rounded-bl-md',
+              ? 'bg-destructive/10 border border-destructive/20 text-destructive'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100',
             'transition-all duration-200 hover:shadow-md'
           )}
         >
@@ -219,15 +223,12 @@ const MessageBubble = memo(forwardRef<HTMLDivElement, MessageBubbleProps>(({ mes
               className="max-w-full rounded-lg"
             />
           ) : (
-            <div className="whitespace-pre-wrap break-words break-all" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-              <motion.span
-                initial={message.isStreaming ? { opacity: 0.7 } : false}
-                animate={{ opacity: 1 }}
-              >
-                {displayedContent}
-              </motion.span>
-              
-              {/* Streaming cursor */}
+            <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+              <motion.div initial={message.isStreaming ? { opacity: 0.85 } : false} animate={{ opacity: 1 }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  {displayedContent}
+                </ReactMarkdown>
+              </motion.div>
               {message.isStreaming && (
                 <motion.span
                   animate={{ opacity: [1, 0, 1] }}

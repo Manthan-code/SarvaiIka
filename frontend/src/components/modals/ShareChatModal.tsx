@@ -1,4 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import {
   Dialog,
   DialogContent,
@@ -215,10 +219,12 @@ export default function ShareChatModal({
                           className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                         >
                           <div className="max-w-[85%]">
-                            <div className={`${m.role === "user" ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200"} rounded-3xl px-4 py-3 shadow-sm`}>
-                              <p className="whitespace-pre-wrap break-words">
-                                {m.content}
-                              </p>
+                            <div className={`${m.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"} rounded-2xl px-4 py-3 shadow-sm`}>
+                              <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words">
+                                <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                                  {m.content}
+                                </ReactMarkdown>
+                              </div>
                             </div>
                           </div>
                         </div>

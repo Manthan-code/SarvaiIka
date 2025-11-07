@@ -1,4 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { useStreamingChat } from '../hooks/useStreamingChat';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -47,10 +51,10 @@ const StreamingChat: React.FC = () => {
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
+              className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
                 message.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
               }`}
             >
               {message.type === 'image' ? (
@@ -60,8 +64,10 @@ const StreamingChat: React.FC = () => {
                   className="max-w-full rounded"
                 />
               ) : (
-                <div className="whitespace-pre-wrap">
-                  {message.content}
+                <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words">
+                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {message.content}
+                  </ReactMarkdown>
                   {message.isStreaming && (
                     <span className="inline-block w-2 h-5 bg-current ml-1 animate-pulse" />
                   )}

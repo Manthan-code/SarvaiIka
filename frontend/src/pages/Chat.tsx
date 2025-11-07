@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Share2, Check, ArrowUp, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -517,10 +521,12 @@ export default function Chat() {
                     // User message - right-aligned with hover copy button
                     <div className="max-w-[85%] group">
                       <div className="relative">
-                        <div className="bg-blue-400 text-white rounded-3xl px-4 py-3 shadow-sm">
-                          <p className="text-lg leading-relaxed whitespace-pre-wrap break-all" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                            {toDisplayString((message as any).content)}
-                          </p>
+                        <div className="bg-blue-600 text-white rounded-2xl px-4 py-3 shadow-sm">
+                          <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                              {toDisplayString((message as any).content)}
+                            </ReactMarkdown>
+                          </div>
                         </div>  
                         {/* Hover copy button for user messages */}
                         <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -541,9 +547,13 @@ export default function Chat() {
                     // Assistant message - left-aligned; show copy/share only after streaming completes
                     <div className="max-w-[98%]">
                       <div className="py-2">
-                        <p className="text-lg leading-relaxed whitespace-pre-wrap break-all text-gray-800 dark:text-gray-200" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-                          {toDisplayString((message as any).content)}
-                        </p>
+                        <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+                          <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
+                              {toDisplayString((message as any).content)}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
                         {/* Copy and share appear only when the AI response is complete */}
                         {!(message as any)?.isStreaming && (message as any)?.type !== 'error' && !!toDisplayString((message as any).content)?.trim() && (
                           <div className="flex items-center space-x-2 mt-3">
