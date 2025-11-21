@@ -21,13 +21,14 @@ import { useSafeBackground } from '@/hooks/useSafeBackground';
 import chatsService from '@/services/chatsService';
 import ShareChatModal from '@/components/modals/ShareChatModal';
 import ChatLoadingIndicator from '@/components/ui/ChatLoadingIndicator';
+import { ModelIcon } from '@/components/ui/ModelIcon';
 
 export default function Chat() {
   const { chatId } = useParams();
   const navigate = useNavigate();
   const { user, session } = useAuthStore();
   const { backgroundImage } = useSafeBackground();
-  
+
   // Debug background image
   useEffect(() => {
     if (backgroundImage) {
@@ -43,9 +44,7 @@ export default function Chat() {
   const [shareOpen, setShareOpen] = useState(false);
   const lastUserInputRef = useRef<string>('');
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
-  
 
-  
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -74,7 +73,7 @@ export default function Chat() {
     sessionId,
     clearMessages: clearStreamMessages
   } = useStreamingChat();
-  
+
   // After streaming completes, refresh persisted messages before clearing transient stream state
   const postStreamRefreshGuardRef = useRef<string | null>(null);
   const expectedAssistantContentRef = useRef<string | null>(null);
@@ -95,7 +94,7 @@ export default function Chat() {
         const lastAssistant = [...(streamMessages as any)].reverse().find((m: any) => m?.role === 'assistant' && m?.type !== 'error');
         const contentStr = lastAssistant && typeof (lastAssistant as any)?.content === 'string' ? (lastAssistant as any).content.trim() : null;
         expectedAssistantContentRef.current = contentStr && contentStr.length > 0 ? contentStr : null;
-      } catch {}
+      } catch { }
       const timer = setTimeout(() => {
         try {
           // If we're already viewing the chat, just refresh messages; otherwise switch
@@ -126,7 +125,7 @@ export default function Chat() {
       postStreamRefreshGuardRef.current = null;
     }
   }, [messages, clearStreamMessages]);
-  
+
   // Ensure we never render duplicate keys and always display string content
   const toDisplayString = useCallback((value: any): string => {
     if (value == null) return '';
@@ -150,7 +149,7 @@ export default function Chat() {
     });
   }, [messages, streamMessages]);
 
-  
+
   // Switch to chat when chatId changes, but avoid fetching during live streaming
   useEffect(() => {
     if (chatId && chatId !== currentChatId) {
@@ -233,7 +232,7 @@ export default function Chat() {
         setShowMenu(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -250,14 +249,14 @@ export default function Chat() {
       try {
         lastMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
-      } catch {}
+      } catch { }
     }
     // Fallback: align sentinel near bottom to top if needed
     if (messagesEndRef.current) {
       try {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
-      } catch {}
+      } catch { }
     }
     // Final fallback: scroll container to bottom
     if (chatContainerRef.current) {
@@ -327,7 +326,7 @@ export default function Chat() {
 
   const deleteChat = async () => {
     if (!currentChatId) return;
-    
+
     if (window.confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
       try {
         // TODO: Implement actual delete API call
@@ -362,7 +361,7 @@ export default function Chat() {
       setIsSending(false);
     }
   };
-  
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -414,13 +413,13 @@ export default function Chat() {
           unread_count: 0,
         });
         // Persist title server-side
-        chatsService.updateChatSession(sessionId, { title: inferredTitle }).catch(() => {});
-      } catch {}
+        chatsService.updateChatSession(sessionId, { title: inferredTitle }).catch(() => { });
+      } catch { }
     }
   }, [sessionId, isNewChat, navigate, deriveTitle]);
 
   return (
-    <div 
+    <div
       className="flex flex-col h-screen bg-[#fff] dark:bg-[#212121]"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
@@ -437,7 +436,7 @@ export default function Chat() {
             {!isNewChat && (currentChat?.title || 'Untitled Chat')}
           </h1>
         </div>
-        
+
         {/* Right side buttons - only show for existing chats */}
         {!isNewChat && currentChat && (
           <div className="flex items-center space-x-2">
@@ -452,7 +451,7 @@ export default function Chat() {
               <Share2 className="h-5 w-5" />
               <span className="text-sm">Share</span>
             </Button>
-            
+
             {/* 3-dot dropdown menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -466,7 +465,7 @@ export default function Chat() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={deleteChat}
                   className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:bg-red-50 dark:focus:bg-red-900/20"
                 >
@@ -483,10 +482,10 @@ export default function Chat() {
       <div className={`transition-[height] duration-300 ease-out ${docked ? 'h-0' : 'h-1/2'}`} />
 
       {/* Messages Area (expands only after docking) */}
-      <div 
+      <div
         ref={chatContainerRef}
-        className={`transition-[height] duration-300 ease-out ${docked 
-          ? 'flex-1 overflow-y-auto pb-40 custom-scrollbar scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent' 
+        className={`transition-[height] duration-300 ease-out ${docked
+          ? 'flex-1 overflow-y-auto pb-40 custom-scrollbar scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent'
           : 'h-0 overflow-y-hidden pb-0'} px-4 relative flex flex-col-reverse`}
       >
         {/* Overlay for better text readability when background image is present */}
@@ -502,9 +501,9 @@ export default function Chat() {
               </div>
             </div>
           )}
-          
 
-          
+
+
           <>
             <AnimatePresence>
               {displayMessages.map((message, index) => (
@@ -527,7 +526,7 @@ export default function Chat() {
                               {toDisplayString((message as any).content)}
                             </ReactMarkdown>
                           </div>
-                        </div>  
+                        </div>
                         {/* Hover copy button for user messages */}
                         <div className="flex justify-end mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button
@@ -547,6 +546,15 @@ export default function Chat() {
                     // Assistant message - left-aligned; show copy/share only after streaming completes
                     <div className="max-w-[98%]">
                       <div className="py-2">
+                        {/* Model Badge */}
+                        {(message as any).model && (
+                          <div className="flex items-center space-x-1.5 mb-1.5 ml-1">
+                            <ModelIcon model={(message as any).model} className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                              {(message as any).model}
+                            </span>
+                          </div>
+                        )}
                         <div className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl px-4 py-3 shadow-sm">
                           <div className="prose dark:prose-invert max-w-[80%] whitespace-pre-wrap break-words" style={{ hyphens: 'auto', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                             <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
@@ -650,9 +658,8 @@ export default function Chat() {
 
               {/* Dropdown menu */}
               <div
-                className={`absolute bottom-12 left-0 w-52 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden transform transition-all duration-200 ease-in-out ${
-                  showMenu ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
-                }`}
+                className={`absolute bottom-12 left-0 w-52 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden transform transition-all duration-200 ease-in-out ${showMenu ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
+                  }`}
               >
                 <button
                   type="button"
@@ -682,22 +689,21 @@ export default function Chat() {
                 className="w-full bg-gray-100 dark:bg-[#303030] custom-scrollbar pr-2 border-none outline-none resize-none rounded-3xl px-2 py-2 text-l leading-6 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 min-h-[6px] max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent "
                 rows={1}
               />
-              
+
               {/* Blur overlay for long text */}
               {textareaRef.current && textareaRef.current.scrollHeight > 80 && (
                 <div className="pointer-events-none absolute top-0 left-0 w-full h-6 bg-gradient-to-b from-gray-100 dark:from-gray-800 to-transparent rounded-t-2xl"></div>
               )}
             </div>
-            
+
             {/* Send button */}
             <button
               type="submit"
               disabled={!input.trim() || isSending}
-              className={`w-10 h-10 rounded-full p-0 flex items-center justify-center transition-all duration-200 ${
-                input.trim()
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md"
-                  : "bg-gray-300 dark:bg-[#303030] text-gray-400 cursor-not-allowed"
-              }`}
+              className={`w-10 h-10 rounded-full p-0 flex items-center justify-center transition-all duration-200 ${input.trim()
+                ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md"
+                : "bg-gray-300 dark:bg-[#303030] text-gray-400 cursor-not-allowed"
+                }`}
             >
               <ArrowUp className="h-5 w-5" />
             </button>

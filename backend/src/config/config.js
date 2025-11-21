@@ -23,6 +23,9 @@ const config = {
     pricePlus: process.env.STRIPE_PRICE_PLUS,
     pricePro: process.env.STRIPE_PRICE_PRO,
   },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+  },
   // JWT removed - using Supabase Auth exclusively
   logLevel: process.env.LOG_LEVEL || 'info',
 };

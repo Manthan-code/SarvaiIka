@@ -10,23 +10,23 @@ class StreamingService {
     // Support multiple env var names for Gemini API key
     this.geminiKey = process.env.FREE_MODEL_API_KEY || process.env.GEMINI_API_KEY || process.env.PAID_CHEAP_MODEL_API_KEY;
     this.hasValidGeminiKey = this.validateGeminiKey(this.geminiKey);
-    
+
     // Initialize clients only if keys are valid
     if (this.hasValidOpenAIKey) {
       this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     } else {
       logger.warn('Invalid or missing OpenAI API key - OpenAI models will be skipped');
     }
-    
+
     if (this.hasValidGeminiKey) {
       this.freeGemini = new GoogleGenerativeAI(this.geminiKey);
     } else {
       logger.warn('Invalid or missing Gemini API key - Gemini models will be skipped');
     }
-    
+
     this.conversationManager = conversationManager;
     this.resolvedGeminiModel = null; // cache resolved, supported Gemini model
-    
+
     this.modelAdapters = {
       'gpt-3.5-turbo': this.streamOpenAI.bind(this),
       'gpt-4o': this.streamOpenAI.bind(this),
@@ -55,14 +55,16 @@ class StreamingService {
       ...preferredCandidates,
       process.env.DEFAULT_MODEL,
       'gemini-2.5-flash',
-      'gemini-2.5-flash-lite'
+      'gemini-2.5-flash-lite',
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite'
     ].filter(Boolean);
     const candidates = baseCandidates.map(normalize);
     // Prefer the first candidate; SDK accepts canonical names
-    this.resolvedGeminiModel = candidates[0] || 'gemini-2.5-flash';
+    this.resolvedGeminiModel = candidates[0] || 'gemini-2.0-flash';
     return this.resolvedGeminiModel;
   }
-  
+
   async streamResponse({ route, message, sessionId, userId, userPlan, res }) {
     try {
       // Get conversation history (creates new chat if sessionId missing)
@@ -71,35 +73,36 @@ class StreamingService {
       // Emit effective session id to the client (new or existing)
       const effectiveSessionId = conversation?.id || sessionId;
       try {
-        res.write(`data: ${JSON.stringify({ 
-          type: 'session', 
+        res.write(`data: ${JSON.stringify({
+          type: 'session',
           data: { sessionId: effectiveSessionId }
         })}\n\n`);
         if (typeof res.flush === 'function') {
           // Ensure headers/chunks are flushed promptly for SSE
-          try { res.flush(); } catch {}
+          try { res.flush(); } catch { }
         }
       } catch (e) {
         logger.warn('Failed to emit session event:', e?.message || e);
       }
-      
+
       // Try primary model first
       let success = false;
       let currentModel = route.primaryModel;
-      
+      let fallbackUsed = false;
+
       const tryModels = [route.primaryModel, ...route.fallbackModels].filter(Boolean);
       const startTime = Date.now();
       for (const model of tryModels) {
         try {
           currentModel = model;
-          res.write(`data: ${JSON.stringify({ 
-            type: 'model_selected', 
+          res.write(`data: ${JSON.stringify({
+            type: 'model_selected',
             data: { model: currentModel }
           })}\n\n`);
           if (typeof res.flush === 'function') {
-            try { res.flush(); } catch {}
+            try { res.flush(); } catch { }
           }
-          
+
           let adapter = this.modelAdapters[model];
           if (!adapter) {
             // Dynamically route by model prefix
@@ -111,13 +114,14 @@ class StreamingService {
               throw new Error(`No adapter for model: ${model}`);
             }
           }
-          
+
           // Use an effective route that sets the selected model as primary for the adapter
           const effectiveRoute = { ...route, primaryModel: currentModel };
           await adapter({ route: effectiveRoute, message, conversation, userId, sessionId: effectiveSessionId, userPlan, res, startTime });
           success = true;
+          fallbackUsed = currentModel !== route.primaryModel;
           break;
-          
+
         } catch (error) {
           logger.warn(`Model ${model} failed:`, error.message);
           if (route.fallbackModels.length === 0) {
@@ -125,15 +129,22 @@ class StreamingService {
           }
         }
       }
-      
+
       if (!success) {
         throw new Error('All models failed');
       }
 
+      // Log clear fallback status after attempts
+      logger.info('[Routing] Fallback status', {
+        fallbackTriggered: fallbackUsed,
+        originalPrimary: route.primaryModel,
+        selectedModel: currentModel
+      });
+
     } catch (error) {
       logger.error('Streaming service error:', error);
-      res.write(`data: ${JSON.stringify({ 
-        type: 'error', 
+      res.write(`data: ${JSON.stringify({
+        type: 'error',
         data: { message: error.message }
       })}\n\n`);
     } finally {
@@ -141,33 +152,33 @@ class StreamingService {
       res.end();
     }
   }
-  
+
   async streamOpenAI({ route, message, conversation, userId, sessionId, userPlan, res, startTime }) {
     if (!this.hasValidOpenAIKey || !this.openai) {
       throw new Error(`OpenAI API key is invalid or missing - cannot use model ${route.primaryModel}`);
     }
-    
+
     const messages = [
       { role: 'system', content: this.getSystemPrompt(route) },
       ...conversation.messages,
       { role: 'user', content: message }
     ];
-    
+
     const stream = await this.openai.chat.completions.create({
       model: route.primaryModel,
       messages,
       stream: true,
       temperature: 0.7
     });
-    
+
     let fullResponse = '';
     let firstTokenTs = 0;
-    
+
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
         fullResponse += content;
-        
+
         // Send token to client
         const ts = Date.now();
         if (!firstTokenTs) {
@@ -179,20 +190,20 @@ class StreamingService {
             logger.warn(`Slow TTFB (${latencyMs}ms) for model ${route.primaryModel} [plan=${plan}]. Consider upgrading to a paid tier for faster streaming.`);
           }
         }
-        res.write(`data: ${JSON.stringify({ 
-          type: 'token', 
+        res.write(`data: ${JSON.stringify({
+          type: 'token',
           data: { content, fullResponse, ts }
         })}\n\n`);
         if (typeof res.flush === 'function') {
-          try { res.flush(); } catch {}
+          try { res.flush(); } catch { }
         }
-        
+
         // Save incremental progress
         // Do not await to avoid blocking streaming loop
-        try { this.conversationManager.saveIncremental(sessionId, userId, content); } catch {}
+        try { this.conversationManager.saveIncremental(sessionId, userId, content); } catch { }
       }
     }
-    
+
     // Save complete conversation
     await this.conversationManager.saveMessage(sessionId, userId, message, fullResponse, route.primaryModel);
   }
@@ -201,7 +212,7 @@ class StreamingService {
     if (!this.hasValidGeminiKey || !this.freeGemini) {
       throw new Error(`Gemini API key is invalid or missing - cannot use model ${route.primaryModel}`);
     }
-    
+
     try {
       const modelId = await this.resolveGeminiModel([route.primaryModel]);
       const generationConfig = { temperature: 0.7, maxOutputTokens: 2048 };
@@ -234,7 +245,7 @@ class StreamingService {
           try {
             const parts = event?.candidates?.[0]?.content?.parts || [];
             piece = parts.map(p => p?.text || '').join('');
-          } catch {}
+          } catch { }
           if (!piece && typeof event?.text === 'string') {
             piece = event.text;
           }
@@ -252,10 +263,10 @@ class StreamingService {
           }
           res.write(`data: ${JSON.stringify({ type: 'token', data: { content: piece, fullResponse: fullText, ts } })}\n\n`);
           if (typeof res.flush === 'function') {
-            try { res.flush(); } catch {}
+            try { res.flush(); } catch { }
           }
           // Non-blocking incremental save
-          try { this.conversationManager.saveIncremental(sessionId, userId, piece); } catch {}
+          try { this.conversationManager.saveIncremental(sessionId, userId, piece); } catch { }
         }
       } catch (streamErr) {
         logger.warn('Gemini SDK streaming failed; falling back to non-streaming generateContent:', streamErr?.message || streamErr);
@@ -303,9 +314,9 @@ class StreamingService {
           const ts = Date.now();
           res.write(`data: ${JSON.stringify({ type: 'token', data: { content: chunk, fullResponse: assembled, ts } })}\n\n`);
           if (typeof res.flush === 'function') {
-            try { res.flush(); } catch {}
+            try { res.flush(); } catch { }
           }
-          try { this.conversationManager.saveIncremental(sessionId, userId, chunk); } catch {}
+          try { this.conversationManager.saveIncremental(sessionId, userId, chunk); } catch { }
         }
       }
 
@@ -318,7 +329,7 @@ class StreamingService {
       throw error;
     }
   }
-  
+
   async geminiGenerateViaRest(modelId, promptText) {
     const modelPath = /^models\//.test(modelId) ? modelId : `models/${modelId}`;
     const url = `https://generativelanguage.googleapis.com/v1beta/${encodeURIComponent(modelPath)}:generateContent?key=${encodeURIComponent(this.geminiKey || '')}`;
@@ -350,31 +361,36 @@ class StreamingService {
       throw err;
     }
   }
-  
+
   async generateImage({ route, message, conversation, userId, sessionId, res }) {
-    res.write(`data: ${JSON.stringify({ 
-      type: 'status', 
+    res.write(`data: ${JSON.stringify({
+      type: 'status',
       data: { message: 'Generating image...' }
     })}\n\n`);
-    
-    const response = await this.openai.images.generate({
+
+    const imgOptions = {
       model: route.primaryModel,
       prompt: message,
       n: 1,
       size: '1024x1024'
-    });
-    
+    };
+    // Use higher quality for hard prompts when requested
+    if (route.imageQuality) {
+      imgOptions.quality = route.imageQuality;
+    }
+    const response = await this.openai.images.generate(imgOptions);
+
     const imageUrl = response.data[0].url;
-    
-    res.write(`data: ${JSON.stringify({ 
-      type: 'image', 
+
+    res.write(`data: ${JSON.stringify({
+      type: 'image',
       data: { url: imageUrl, prompt: message }
     })}\n\n`);
-    
+
     // Save to conversation
     await this.conversationManager.saveMessage(sessionId, userId, message, imageUrl, route.primaryModel, 'image');
   }
-  
+
   getSystemPrompt(route) {
     const prompts = {
       text: 'You are a helpful AI assistant. Provide clear, accurate, and helpful responses.',
@@ -382,7 +398,7 @@ class StreamingService {
       image: 'You are an AI image generation assistant.',
       video: 'You are a helpful assistant. Note: Video generation is not yet available, so provide text-based guidance instead.'
     };
-    
+
     return prompts[route.type] || prompts.text;
   }
 }

@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { apiClient } from '../utils/apiClient';
-import { 
-  getCachedActiveMessages, 
-  switchToActiveChat, 
+import {
+  getCachedActiveMessages,
+  switchToActiveChat,
   clearAllCachedActiveMessages,
   getCachedRecentChats,
   updateCachedChat
@@ -17,6 +17,7 @@ interface CachedMessage {
   chat_id: string;
   user_id: string;
   tokens?: number;
+  model?: string;
   model_used?: string;
   parent_message_id?: string;
   metadata?: Record<string, unknown>;
@@ -51,7 +52,7 @@ export function useActiveChat(): UseActiveChatReturn {
   const [error, setError] = useState<string | null>(null);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
-  
+
   const loadingRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -108,6 +109,7 @@ export function useActiveChat(): UseActiveChatReturn {
       chat_id: message.chat_id || currentChatId || '',
       user_id: message.user_id || session?.user?.id || 'unknown',
       tokens: message.tokens,
+      model: (typeof message.model === 'string' ? message.model : undefined) || message.model_used,
       model_used: message.model_used,
       parent_message_id: message.parent_message_id,
       metadata: message.metadata,
@@ -116,47 +118,47 @@ export function useActiveChat(): UseActiveChatReturn {
 
   const loadMessages = useCallback(async (chatId: string, forceRefresh = false) => {
     if (!chatId || loadingRef.current) return;
-    
+
     // Cancel any previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
-    
+
     // Create new abort controller for this request
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
-    
+
     try {
       loadingRef.current = true;
       setIsLoading(true);
       setError(null);
       setCurrentChatId(chatId);
-      
+
       // Try to load from localStorage cache first
       let shouldFetchFromServer = forceRefresh;
       let cachedMessages: any[] = [];
-      
+
       if (!forceRefresh) {
         const cachedData = getCachedActiveMessages();
         if (cachedData && cachedData.chatId === chatId && cachedData.messages.length > 0) {
           // Validate that cached messages belong to current user
           const currentUserId = session?.user?.id;
-          const validMessages = cachedData.messages.filter(msg => 
+          const validMessages = cachedData.messages.filter(msg =>
             !currentUserId || msg.user_id === currentUserId || msg.user_id === 'unknown'
           );
-          
+
           if (validMessages.length > 0) {
             setMessages(validMessages);
             cachedMessages = validMessages;
             setIsLoading(false); // Stop loading since we have cached data
             loadingRef.current = false;
             console.log('✅ Loaded messages from cache:', validMessages.length);
-            
+
             // Check if we need to resync (optional background fetch)
             // Only resync if cache is older than 2 minutes for better performance
             const cacheAge = Date.now() - (cachedData.timestamp || 0);
             const shouldResync = cacheAge > 2 * 60 * 1000; // 2 minutes
-            
+
             if (shouldResync) {
               console.log('🔄 Cache is older than 2 minutes, background sync initiated');
               shouldFetchFromServer = true;
@@ -174,7 +176,7 @@ export function useActiveChat(): UseActiveChatReturn {
           shouldFetchFromServer = true;
         }
       }
-      
+
       // Fetch from server only when necessary
       if (shouldFetchFromServer) {
         const isBackgroundSync = cachedMessages.length > 0;
@@ -182,7 +184,7 @@ export function useActiveChat(): UseActiveChatReturn {
           setIsLoading(true);
           loadingRef.current = true;
         }
-        
+
         console.log(isBackgroundSync ? '🔄 [Background Sync]' : '🔍 [Initial Fetch]', 'Fetching messages for chat:', chatId);
         const response = await apiClient.get(`/api/chat/${chatId}`, {
           signal: abortController.signal
@@ -196,10 +198,10 @@ export function useActiveChat(): UseActiveChatReturn {
           directResponseTitle: response?.title,
           messagesLength: response?.messages?.length || 'no messages'
         });
-        
+
         // Handle direct response format (server returns chat object directly)
         const chatData = response?.data || response; // Support both wrapped and direct formats
-        
+
         if (chatData) {
           const transformedMessages = chatData.messages?.map(transformMessage) || [];
           console.log('🔄 [useActiveChat] Transformed messages:', {
@@ -209,16 +211,16 @@ export function useActiveChat(): UseActiveChatReturn {
             lastMessage: transformedMessages[transformedMessages.length - 1],
             isBackgroundSync
           });
-          
+
           // Only update messages if request wasn't aborted
           if (!abortController.signal.aborted) {
             // For background sync, only update if server has newer/different messages
             if (isBackgroundSync) {
               const hasNewMessages = transformedMessages.length !== cachedMessages.length ||
-                transformedMessages.some((msg, index) => 
+                transformedMessages.some((msg, index) =>
                   !cachedMessages[index] || msg.id !== cachedMessages[index].id
                 );
-              
+
               if (hasNewMessages) {
                 setMessages(transformedMessages);
                 console.log('📝 [Background Sync] Updated with newer messages:', transformedMessages.length);
@@ -230,39 +232,39 @@ export function useActiveChat(): UseActiveChatReturn {
               console.log('📝 [Initial Fetch] Setting messages state:', transformedMessages.length);
             }
           }
-          
+
           // Update chat info only if request wasn't aborted
           if (!abortController.signal.aborted) {
             const chatInfo = {
               id: chatData.id || chatId,
               title: chatData.title || 'Untitled Chat',
               created_at: chatData.created_at,
-            last_message_at: chatData.last_message_at,
-            total_messages: chatData.total_messages
-          };
-          setCurrentChat(chatInfo);
-          
-          // Update recent chats cache with latest title and info
-          updateCachedChat({
-            id: chatData.id || chatId,
-            title: chatData.title || 'Untitled Chat',
-            last_message_at: chatData.last_message_at || chatData.updated_at || new Date().toISOString(),
-            created_at: chatData.created_at || new Date().toISOString(),
-            updated_at: chatData.updated_at || new Date().toISOString()
-          });
-          
-          console.log('💬 [useActiveChat] Setting active chat:', {
-            id: chatData.id,
-            title: chatData.title || 'Untitled Chat'
-          });
-        }
-        
+              last_message_at: chatData.last_message_at,
+              total_messages: chatData.total_messages
+            };
+            setCurrentChat(chatInfo);
+
+            // Update recent chats cache with latest title and info
+            updateCachedChat({
+              id: chatData.id || chatId,
+              title: chatData.title || 'Untitled Chat',
+              last_message_at: chatData.last_message_at || chatData.updated_at || new Date().toISOString(),
+              created_at: chatData.created_at || new Date().toISOString(),
+              updated_at: chatData.updated_at || new Date().toISOString()
+            });
+
+            console.log('💬 [useActiveChat] Setting active chat:', {
+              id: chatData.id,
+              title: chatData.title || 'Untitled Chat'
+            });
+          }
+
           // Update localStorage cache with latest messages (keep last 40 for quick access)
           if (transformedMessages.length > 0) {
             const latestForCache = transformedMessages.slice(-40);
             switchToActiveChat(chatId, latestForCache);
           }
-          
+
           console.log('✅ [DEBUG] Successfully loaded chat:', { chatId, messagesCount: transformedMessages.length, title: chatData.title || 'Untitled Chat' });
         } else {
           console.log('🔍 [DEBUG] No data in response or invalid response format:', response);
@@ -273,16 +275,16 @@ export function useActiveChat(): UseActiveChatReturn {
           }
         }
       } // Close the shouldFetchFromServer if block
-      
+
     } catch (err) {
       // Don't handle aborted requests as errors
       if (err.name === 'AbortError' || abortController.signal.aborted) {
         console.log('🔍 [DEBUG] Request aborted for chat:', chatId);
         return;
       }
-      
+
       let errorMessage = err.message || 'Failed to load messages';
-      
+
       if (err.code === 'NOT_FOUND') {
         // Use console.warn for expected 404 errors to avoid triggering error tracking
         console.warn('Chat not found:', err);
@@ -306,7 +308,7 @@ export function useActiveChat(): UseActiveChatReturn {
         // Log unexpected errors
         console.error('Error loading messages:', err);
       }
-      
+
       // Only set error if request wasn't aborted
       if (!abortController.signal.aborted) {
         setError(errorMessage);
@@ -317,7 +319,7 @@ export function useActiveChat(): UseActiveChatReturn {
         loadingRef.current = false;
         setIsLoading(false);
       }
-      
+
       // Clear the abort controller reference if it's the current one
       if (abortControllerRef.current === abortController) {
         abortControllerRef.current = null;
@@ -340,20 +342,20 @@ export function useActiveChat(): UseActiveChatReturn {
       };
 
       const updatedMessages = [...prevMessages, safeMessage];
-      
+
       // Update localStorage cache
       if (currentChatId) {
         const cacheMessages = updatedMessages.slice(-10);
         switchToActiveChat(currentChatId, cacheMessages);
       }
-      
+
       return updatedMessages;
     });
   }, [currentChatId, normalizeOutput]);
 
   const sendMessage = useCallback(async (content: string, chatId: string): Promise<string | null> => {
     if (!content.trim() || !session) return null;
-    
+
     // Helper to generate stable unique IDs to avoid React key collisions
     const makeId = (prefix: string) => {
       const rand = (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function')
@@ -361,7 +363,7 @@ export function useActiveChat(): UseActiveChatReturn {
         : Math.random().toString(36).slice(2);
       return `${prefix}-${Date.now()}-${rand}`;
     };
-    
+
     const userMessage: CachedMessage = {
       id: makeId('user'),
       content: content.trim(),
@@ -370,10 +372,10 @@ export function useActiveChat(): UseActiveChatReturn {
       chat_id: chatId,
       user_id: session.user?.id || 'unknown',
     };
-    
+
     // Optimistic update
     addMessage(userMessage);
-    
+
     try {
       const response = await apiClient.post(`/api/chat`, {
         message: content.trim(),
@@ -428,13 +430,13 @@ export function useActiveChat(): UseActiveChatReturn {
             // Add the assistant message to cached array and rebind to nextChatId
             const forCache = [...cachedMessages, assistantMessage].slice(-40);
             switchToActiveChat(nextChatId, forCache);
-          } catch {}
+          } catch { }
           // Trigger sidebar refresh if registered
           try {
             const { refreshSidebar } = await import('./useRecentChats');
             refreshSidebar();
-          } catch {}
-        } catch {}
+          } catch { }
+        } catch { }
       }
 
       // Return the effective chat ID so callers can navigate without racing state
@@ -457,27 +459,27 @@ export function useActiveChat(): UseActiveChatReturn {
   const switchChat = useCallback(async (chatId: string) => {
     if (chatId !== currentChatId) {
       console.log('🔍 [DEBUG] Switching to chat:', { from: currentChatId, to: chatId });
-      
+
       // Clear any previous errors
       setError(null);
-      
+
       // Update current chat ID immediately
       setCurrentChatId(chatId);
-      
+
       // Try to get chat title from recent chats cache first
       const recentChats = getCachedRecentChats();
       const cachedChat = recentChats?.find(chat => chat.id === chatId);
       const chatTitle = cachedChat?.title || 'Loading...';
-      
+
       // Try to load cached messages first for instant display
       const cachedData = getCachedActiveMessages();
       if (cachedData && cachedData.chatId === chatId && cachedData.messages.length > 0) {
         // Validate cached messages belong to current user
         const currentUserId = session?.user?.id;
-        const validMessages = cachedData.messages.filter(msg => 
+        const validMessages = cachedData.messages.filter(msg =>
           !currentUserId || msg.user_id === currentUserId || msg.user_id === 'unknown'
         );
-        
+
         if (validMessages.length > 0) {
           console.log('🔍 [DEBUG] Loading cached messages for instant display:', validMessages.length);
           setMessages(validMessages);
@@ -497,7 +499,7 @@ export function useActiveChat(): UseActiveChatReturn {
         setMessages([]);
         setCurrentChat({ id: chatId, title: chatTitle });
       }
-      
+
       // Load fresh messages from server
       await loadMessages(chatId);
     }

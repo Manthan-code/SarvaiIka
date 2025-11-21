@@ -111,7 +111,13 @@ class ConversationManager {
         id: chat.id,
         user_id: chat.user_id,
         title: chat.title,
-        messages: (msgRows || []).map(m => ({ role: m.role, content: m.content, model_used: m.model_used, created_at: m.created_at }))
+        messages: (msgRows || []).map(m => ({
+          role: m.role,
+          content: m.content,
+          model: m.model_used, // Map for frontend
+          model_used: m.model_used,
+          created_at: m.created_at
+        }))
       };
 
       // Cache the result
@@ -155,9 +161,15 @@ class ConversationManager {
       if (cached) {
         const conversation = JSON.parse(cached);
         conversation.messages = conversation.messages || [];
-        conversation.messages.push({ role: data.role, content: data.content, model_used: data.model_used, created_at: data.created_at });
+        conversation.messages.push({
+          role: data.role,
+          content: data.content,
+          model: data.model_used, // Map for frontend
+          model_used: data.model_used,
+          created_at: data.created_at
+        });
         conversation.updatedAt = new Date().toISOString();
-        
+
         await this.redisClient.setex(
           `chat:${conversationId}`,
           3600,
@@ -278,7 +290,7 @@ class ConversationManager {
         const conversation = JSON.parse(cached);
         conversation.title = title;
         conversation.updatedAt = data.last_message_at;
-        
+
         await this.redisClient.setex(
           `chat:${conversationId}`,
           3600,

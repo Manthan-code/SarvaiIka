@@ -31,6 +31,10 @@ interface StreamEventData {
   token?: string;
   url?: string;
   message?: string;
+  debug?: {
+    systemPrompt?: string;
+    userQuery?: string;
+  };
 }
 
 export const useStreamingChat = () => {
@@ -49,11 +53,11 @@ export const useStreamingChat = () => {
   const useProxy = DEV && !FORCE_ABSOLUTE;
   const primaryStreamingUrl = useProxy ? '/api/streaming/stream' : `${API_BASE_URL}/api/streaming/stream`;
   const altStreamingUrl = useProxy ? `${API_BASE_URL}/api/streaming/stream` : '/api/streaming/stream';
-  
+
   const { session } = useAuthStore();
   const eventSourceRef = useRef<EventSource | null>(null);
   const currentMessageRef = useRef<string>('');
-  
+
   // Helper to generate stable unique IDs
   const makeId = (prefix: string) => {
     const rand = (globalThis.crypto && typeof globalThis.crypto.randomUUID === 'function')
@@ -61,7 +65,127 @@ export const useStreamingChat = () => {
       : Math.random().toString(36).slice(2);
     return `${prefix}-${Date.now()}-${rand}`;
   };
-  
+
+  const handleStreamEvent = useCallback((event: { type: string; data?: unknown;[key: string]: unknown }, messageId: string, cleaner?: StreamMarkdownCleaner) => {
+    const eventData = event.data as StreamEventData;
+
+    switch (event.type) {
+      case 'session': {
+        const sid = (eventData as any)?.sessionId;
+        if (typeof sid === 'string' && sid.length > 0) {
+          setSessionIdFromStream(sid);
+          sessionIdRef.current = sid;
+        }
+        break;
+      }
+
+      case 'routing': {
+        const debug = (eventData as any)?.debug;
+        if (debug) {
+          console.groupCollapsed('🧠 Router AI Debug Info');
+          console.log('System Prompt:', debug.systemPrompt);
+          console.log('User Query:', debug.userQuery);
+          console.log('Selected Model:', eventData?.primaryModel);
+          console.groupEnd();
+        }
+        const modelName = eventData?.primaryModel;
+        setStreamingState(prev => ({
+          ...prev,
+          currentModel: modelName || null
+        }));
+        if (modelName) {
+          setMessages(prev => prev.map(msg =>
+            msg.id === messageId
+              ? { ...msg, model: modelName }
+              : msg
+          ));
+        }
+        break;
+      }
+
+      case 'model_selected': {
+        const modelName = eventData?.model;
+        setStreamingState(prev => ({
+          ...prev,
+          currentModel: modelName || null
+        }));
+        if (modelName) {
+          setMessages(prev => prev.map(msg =>
+            msg.id === messageId
+              ? { ...msg, model: modelName }
+              : msg
+          ));
+        }
+        break;
+      }
+
+      case 'token': {
+        const fullResponse = eventData?.fullResponse;
+        const ts = (eventData as any)?.ts as number | undefined;
+        if (typeof ts === 'number') {
+          try {
+            const iso = new Date(ts).toISOString();
+            // Lightweight timestamp logging to validate throughput
+            console.debug('[stream] token at', iso);
+          } catch { }
+        }
+        // Prefer fullResponse if provided; otherwise accumulate deltas/content
+        let nextContent: string | null = null;
+        if (typeof fullResponse === 'string') {
+          const processed = cleaner ? cleaner.processChunk(fullResponse) : fullResponse;
+          nextContent = processed;
+          currentMessageRef.current = processed;
+        } else {
+          const piece = (eventData?.delta
+            ?? eventData?.content
+            ?? eventData?.text
+            ?? eventData?.token);
+          if (typeof piece === 'string') {
+            const processedPiece = cleaner ? cleaner.processChunk(piece) : piece;
+            currentMessageRef.current = (currentMessageRef.current || '') + processedPiece;
+            nextContent = currentMessageRef.current;
+          }
+        }
+        if (typeof nextContent === 'string') {
+          setMessages(prev => prev.map(msg =>
+            msg.id === messageId
+              ? { ...msg, content: nextContent }
+              : msg
+          ));
+        }
+        break;
+      }
+
+      case 'image': {
+        const imageUrl = eventData?.url;
+        if (typeof imageUrl === 'string') {
+          setMessages(prev => prev.map(msg =>
+            msg.id === messageId
+              ? { ...msg, content: imageUrl, type: 'image', isStreaming: false }
+              : msg
+          ));
+          setStreamingState(prev => ({ ...prev, isStreaming: false }));
+        }
+        break;
+      }
+
+      case 'error': {
+        const errorMessage = eventData?.message || 'An error occurred';
+        setStreamingState(prev => ({
+          ...prev,
+          error: typeof errorMessage === 'string' ? errorMessage : 'An error occurred',
+          isStreaming: false
+        }));
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId
+            ? { ...msg, content: typeof errorMessage === 'string' ? errorMessage : 'An error occurred', type: 'error', isStreaming: false }
+            : msg
+        ));
+        break;
+      }
+    }
+  }, []);
+
   const sendMessage = useCallback(async (message: string, sessionId?: string) => {
     // Add user message
     const userMessage: StreamingMessage = {
@@ -70,9 +194,9 @@ export const useStreamingChat = () => {
       role: 'user',
       timestamp: new Date()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
-    
+
     // Create assistant message placeholder
     const assistantMessageId = makeId('assistant');
     const assistantMessage: StreamingMessage = {
@@ -82,27 +206,27 @@ export const useStreamingChat = () => {
       timestamp: new Date(),
       isStreaming: true
     };
-    
+
     setMessages(prev => [...prev, assistantMessage]);
     // Initialize stream cleaner per stream
     const cleanerRef = { current: new StreamMarkdownCleaner() };
     setStreamingState({ isStreaming: true, currentModel: null, error: null });
     currentMessageRef.current = '';
-    
+
     try {
       // Guard: require valid auth token before starting streaming
       const accessToken = session?.access_token;
       if (!accessToken || typeof accessToken !== 'string') {
         const authErrorMsg = 'You are not signed in or your session expired. Please sign in and try again.';
         setStreamingState({ isStreaming: false, currentModel: null, error: authErrorMsg });
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessageId 
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMessageId
             ? { ...msg, content: authErrorMsg, type: 'error', isStreaming: false }
             : msg
         ));
         return;
       }
-      
+
       // Start streaming with adaptive proxy-bypass fallback
       const attemptFetch = async (url: string, controller?: AbortController) => {
         return await fetch(url, {
@@ -129,7 +253,7 @@ export const useStreamingChat = () => {
         usedUrl = altStreamingUrl;
         response = await attemptFetch(usedUrl, controller);
       }
-      
+
       if (!response.ok) {
         // Try to surface server error details
         let serverErrorMsg = `Failed to start streaming (${response.status})`;
@@ -150,17 +274,17 @@ export const useStreamingChat = () => {
               serverErrorMsg = text;
             }
           }
-        } catch {}
-        
+        } catch { }
+
         setStreamingState({ isStreaming: false, currentModel: null, error: serverErrorMsg });
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessageId 
+        setMessages(prev => prev.map(msg =>
+          msg.id === assistantMessageId
             ? { ...msg, content: serverErrorMsg, type: 'error', isStreaming: false }
             : msg
         ));
         return;
       }
-      
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let receivedAnyEvent = false;
@@ -174,26 +298,26 @@ export const useStreamingChat = () => {
           if (!receivedAnyEvent) {
             try {
               controller.abort();
-            } catch {}
+            } catch { }
           }
         }, 1200) as unknown as number;
       }
-      
+
       while (true) {
         const { done, value } = await reader!.read();
         if (done) break;
-        
+
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n');
-        
+
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             receivedAnyEvent = true;
             const data = line.slice(6);
             if (data === '[DONE]') {
               setStreamingState(prev => ({ ...prev, isStreaming: false }));
-              setMessages(prev => prev.map(msg => 
-                msg.id === assistantMessageId 
+              setMessages(prev => prev.map(msg =>
+                msg.id === assistantMessageId
                   ? { ...msg, isStreaming: false }
                   : msg
               ));
@@ -221,12 +345,12 @@ export const useStreamingChat = () => {
                   // Trigger sidebar refresh
                   try {
                     refreshSidebar();
-                  } catch {}
+                  } catch { }
                 }
-              } catch {}
+              } catch { }
               return;
             }
-            
+
             try {
               const parsed = JSON.parse(data);
               handleStreamEvent(parsed, assistantMessageId, cleanerRef.current);
@@ -238,7 +362,7 @@ export const useStreamingChat = () => {
       }
       // If we aborted due to no events, try alt URL once
       if (!receivedAnyEvent && shouldSetBypassTimer) {
-        try { clearTimeout(fallbackTimer!); } catch {}
+        try { clearTimeout(fallbackTimer!); } catch { }
         controller = new AbortController();
         usedUrl = altStreamingUrl;
         const retryResp = await attemptFetch(usedUrl, controller);
@@ -256,8 +380,8 @@ export const useStreamingChat = () => {
               const data = line.slice(6);
               if (data === '[DONE]') {
                 setStreamingState(prev => ({ ...prev, isStreaming: false }));
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessageId 
+                setMessages(prev => prev.map(msg =>
+                  msg.id === assistantMessageId
                     ? { ...msg, isStreaming: false }
                     : msg
                 ));
@@ -280,14 +404,14 @@ export const useStreamingChat = () => {
                       last_message: finalContent,
                       unread_count: 0,
                     } as any);
-                    try { refreshSidebar(); } catch {}
+                    try { refreshSidebar(); } catch { }
                   }
-                } catch {}
+                } catch { }
                 return;
               }
               try {
-              const parsed = JSON.parse(data);
-              handleStreamEvent(parsed, assistantMessageId, cleanerRef.current);
+                const parsed = JSON.parse(data);
+                handleStreamEvent(parsed, assistantMessageId, cleanerRef.current);
               } catch (e) {
                 console.warn('Failed to parse stream data:', data);
               }
@@ -295,120 +419,25 @@ export const useStreamingChat = () => {
           }
         }
       }
-      try { if (fallbackTimer) clearTimeout(fallbackTimer); } catch {}
-      
+      try { if (fallbackTimer) clearTimeout(fallbackTimer); } catch { }
+
     } catch (error) {
       console.error('Streaming error:', error);
       const errMsg = (error as Error)?.message || 'An error occurred';
       setStreamingState({ isStreaming: false, currentModel: null, error: errMsg });
-      setMessages(prev => prev.map(msg => 
-        msg.id === assistantMessageId 
+      setMessages(prev => prev.map(msg =>
+        msg.id === assistantMessageId
           ? { ...msg, content: 'Sorry, I encountered an error. Please try again.', type: 'error', isStreaming: false }
           : msg
       ));
     }
-  }, [session]);
+  }, [session, handleStreamEvent]);
 
-  const handleStreamEvent = useCallback((event: { type: string; data?: unknown; [key: string]: unknown }, messageId: string, cleaner?: StreamMarkdownCleaner) => {
-    const eventData = event.data as StreamEventData;
-    
-    switch (event.type) {
-      case 'session': {
-        const sid = (eventData as any)?.sessionId;
-        if (typeof sid === 'string' && sid.length > 0) {
-          setSessionIdFromStream(sid);
-          sessionIdRef.current = sid;
-        }
-        break;
-      }
-      case 'routing': {
-        setStreamingState(prev => ({ 
-          ...prev, 
-          currentModel: eventData?.primaryModel || null 
-        }));
-        break;
-      }
-        
-      case 'model_selected': {
-        setStreamingState(prev => ({ 
-          ...prev, 
-          currentModel: eventData?.model || null 
-        }));
-        break;
-      }
-        
-      case 'token': {
-        const fullResponse = eventData?.fullResponse;
-        const ts = (eventData as any)?.ts as number | undefined;
-        if (typeof ts === 'number') {
-          try {
-            const iso = new Date(ts).toISOString();
-            // Lightweight timestamp logging to validate throughput
-            console.debug('[stream] token at', iso);
-          } catch {}
-        }
-        // Prefer fullResponse if provided; otherwise accumulate deltas/content
-        let nextContent: string | null = null;
-        if (typeof fullResponse === 'string') {
-          const processed = cleaner ? cleaner.processChunk(fullResponse) : fullResponse;
-          nextContent = processed;
-          currentMessageRef.current = processed;
-        } else {
-          const piece = (eventData?.delta
-            ?? eventData?.content
-            ?? eventData?.text
-            ?? eventData?.token);
-          if (typeof piece === 'string') {
-            const processedPiece = cleaner ? cleaner.processChunk(piece) : piece;
-            currentMessageRef.current = (currentMessageRef.current || '') + processedPiece;
-            nextContent = currentMessageRef.current;
-          }
-        }
-        if (typeof nextContent === 'string') {
-          setMessages(prev => prev.map(msg => 
-            msg.id === messageId 
-              ? { ...msg, content: nextContent }
-              : msg
-          ));
-        }
-        break;
-      }
-        
-      case 'image': {
-        const imageUrl = eventData?.url;
-        if (typeof imageUrl === 'string') {
-          setMessages(prev => prev.map(msg => 
-            msg.id === messageId 
-              ? { ...msg, content: imageUrl, type: 'image', isStreaming: false }
-              : msg
-          ));
-          setStreamingState(prev => ({ ...prev, isStreaming: false }));
-        }
-        break;
-      }
-        
-      case 'error': {
-        const errorMessage = eventData?.message || 'An error occurred';
-        setStreamingState(prev => ({ 
-          ...prev, 
-          error: typeof errorMessage === 'string' ? errorMessage : 'An error occurred',
-          isStreaming: false 
-        }));
-        setMessages(prev => prev.map(msg => 
-          msg.id === messageId 
-            ? { ...msg, content: typeof errorMessage === 'string' ? errorMessage : 'An error occurred', type: 'error', isStreaming: false }
-            : msg
-        ));
-        break;
-      }
-    }
-  }, []);
-  
   const clearMessages = useCallback(() => {
     setMessages([]);
     setStreamingState({ isStreaming: false, currentModel: null, error: null });
   }, []);
-  
+
   return {
     messages,
     streamingState,

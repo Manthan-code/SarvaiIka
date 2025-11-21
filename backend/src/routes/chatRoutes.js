@@ -4,7 +4,7 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseAdmin = require('../db/supabase/admin.js'); // Add this import
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const logger = require('../config/logger.js');
-const { analyzeQuery, routeQuery } = require('../services/routerAgent.js');
+const { modelRouter } = require('../services/enhancedRouter.js');
 const { generateImageSimple } = require('../services/dalleService.js');
 const { generateDiagram, isLucidchartAvailable } = require('../services/lucidchartService.js');
 const { generateChatResponse } = require('../services/vectorService.js');
@@ -49,7 +49,7 @@ router.get('/', requireAuth, asyncHandler(async (req, res) => {
     }
 
     const { data: chats, error } = await query;
-    
+
     if (error) {
       console.error('Error fetching chats:', error);
       logger.error('Error fetching chats:', error);
@@ -63,7 +63,7 @@ router.get('/', requireAuth, asyncHandler(async (req, res) => {
     // Generate next cursor
     const nextCursor = results.length > 0 ? results[results.length - 1].created_at : null;
     const prevCursor = results.length > 0 ? results[0].created_at : null;
-    
+
     res.status(200).json({
       chats: results,
       pagination: {
@@ -88,7 +88,7 @@ router.get('/sessions', requireAuth, asyncHandler(async (req, res) => {
   const direction = req.query.direction || 'next';
   const { force } = req.query;
   const cacheKey = `chat:sessions:${userId}:${cursor || 'initial'}:${limit}:${direction}`;
-  
+
   // Skip cache if force refresh is requested
   if (!force) {
     const cachedSessions = await getCachedResponse(userId, cacheKey);
@@ -99,7 +99,7 @@ router.get('/sessions', requireAuth, asyncHandler(async (req, res) => {
       });
     }
   }
-  
+
   let query = supabase
     .from('chats')
     .select('id, title, created_at, last_message_at, total_messages')
@@ -144,7 +144,7 @@ router.get('/sessions', requireAuth, asyncHandler(async (req, res) => {
 
   // Cache the results with 60-second TTL
   await cacheResponse(userId, cacheKey, responseData, 60);
-  
+
   res.status(200).json(responseData);
 }));
 
@@ -271,12 +271,12 @@ router.get('/:id', requireAuth, asyncHandler(async (req, res) => {
 
     // Extract messages and reverse to get chronological order
     const messages = chatData.chat_messages?.reverse() || [];
-    
+
     // Remove messages from chat object to avoid duplication
     const { chat_messages, ...session } = chatData;
 
-    res.status(200).json({ 
-      ...session, 
+    res.status(200).json({
+      ...session,
       messages,
       pagination: {
         limit: parseInt(limit),
@@ -304,16 +304,26 @@ router.post('/', requireAuth, trackUsage, asyncHandler(async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // Analyze query and route to appropriate handler
-    const analysis = await analyzeQuery(message);
-    const routing = await routeQuery(message, userPlan); // Fixed: pass message instead of analysis
+    // Route using enhanced model router (includes nano-classification logging internally)
+    const computedRoute = await modelRouter.routeQuery(message, userPlan);
 
-    const { intent, difficulty, model, allowed, downgraded } = routing;
+    // The router now returns the exact model to use
+    const model = computedRoute.primaryModel;
+    const intent = computedRoute.type;
+    const difficulty = computedRoute.difficulty;
+    const allowed = computedRoute.allowed;
+
+    logger.info('[ChatRoutes] Routing decision', {
+      intent,
+      difficulty,
+      model,
+      subscriptionPlan: userPlan,
+    });
 
     if (!allowed) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'This feature requires a higher subscription plan',
-        requiredPlan: model.includes('gpt-4') ? 'plus' : 'pro'
+        requiredPlan: 'plus'
       });
     }
 
@@ -321,13 +331,13 @@ router.post('/', requireAuth, trackUsage, asyncHandler(async (req, res) => {
     switch (intent) {
       case 'text':
       case 'coding':
-        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, res });
+        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
       case 'image':
         return await handleImage({ message, userId, userPlan, intent, difficulty, allowed, res });
       case 'diagram':
         return await handleDiagram({ message, userId, userPlan, intent, difficulty, content_type: 'diagram', allowed, res });
       default:
-        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, res });
+        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
     }
 
   } catch (error) {
@@ -336,42 +346,33 @@ router.post('/', requireAuth, trackUsage, asyncHandler(async (req, res) => {
   }
 }));
 
-async function handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, res }) {
+async function handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing, res }) {
   try {
-    // Normalize model to a supported Gemini model
-    function normalizeModel(inputModel, plan) {
+    // Determine provider and normalize Gemini aliases only
+    const isOpenAIModel = (m) => {
+      const s = String(m || '').toLowerCase();
+      return s.startsWith('gpt') || s.startsWith('o') || s.includes('openai');
+    };
+
+    function normalizeGemini(inputModel) {
       const m = (inputModel || '').toLowerCase().trim();
       const defaultByPlan = () => process.env.DEFAULT_MODEL || 'gemini-1.5-flash-latest';
 
-      // Map common OpenAI model names to Gemini equivalents
       if (!m) return defaultByPlan();
-      if (m.startsWith('gpt-4o')) return 'gemini-1.5-flash-latest';
-      if (m.includes('gpt-4')) return 'gemini-1.5-flash-latest';
-      if (m.includes('gpt-3.5')) return 'gemini-1.5-flash-latest';
-      if (m.includes('mini')) return 'gemini-1.5-flash-latest';
-      if (m.includes('turbo')) return 'gemini-1.5-flash-latest';
-
-      // Normalize Gemini aliases
       const geminiAliasMap = {
         'gemini-pro': 'gemini-1.0-pro-latest',
         'gemini-1.5-pro': 'gemini-1.5-pro-latest',
         'gemini-1.5-flash': 'gemini-1.5-flash-latest',
       };
       const normalizedGemini = geminiAliasMap[m] || m;
-
-      // Force to flash for any Gemini model
       if (normalizedGemini.startsWith('gemini-')) {
-        // Prefer -latest variants
         if (normalizedGemini.endsWith('-latest')) return normalizedGemini;
-        // Default Gemini selection to 1.5-flash-latest
         return 'gemini-1.5-flash-latest';
       }
-
-      // Unknown strings: prefer flash
       return defaultByPlan();
     }
 
-    const modelUsed = normalizeModel(model, userPlan);
+    const modelUsed = isOpenAIModel(model) ? model : normalizeGemini(model);
     const cacheKey = `chat:${userId}:${crypto.createHash('md5').update(message).digest('hex')}`;
     const cacheTTL = 3600; // 1 hour
 
@@ -387,7 +388,7 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
         out.includes("I'm having trouble processing your request")
       );
       if (isErrorLike) {
-        try { await invalidateCache(cacheKey); } catch (_) {}
+        try { await invalidateCache(cacheKey); } catch (_) { }
       } else {
         return res.status(200).json({
           output: out,
@@ -420,15 +421,15 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
         })
         .select('id')
         .single();
-    
+
       if (chatError) {
         logger.error('Error creating chat session:', chatError);
         return res.status(500).json({ error: 'Failed to create chat session' });
       }
-    
+
       currentSessionId = newChat.id;
       isNewChat = true;
-      
+
       // Invalidate chat sessions cache immediately
       try {
         // Use more specific pattern that matches the actual cache key
@@ -447,7 +448,7 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
         .eq('chat_id', currentSessionId)
         .eq('user_id', userId)
         .order('created_at', { ascending: true });
-      
+
       if (messages) conversationHistory = messages;
     }
 
@@ -460,6 +461,12 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
     let effectiveModel = modelUsed;
     let geminiClient = getGeminiClient(effectiveModel, userPlan);
     let wasDowngraded = false;
+
+    logger.info('[ChatRoutes] Provider selection', {
+      provider: isOpenAIModel(modelUsed) ? 'openai' : 'gemini',
+      model: modelUsed,
+      userPlan
+    });
 
     // Resolve a supported Gemini model by listing available models once
     async function resolveGeminiModel(preferredCandidates = []) {
@@ -486,17 +493,17 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
       try {
         // Get the generative model
         const resolved = await resolveGeminiModel([effectiveModel || (process.env.DEFAULT_MODEL || 'gemini-1.5-flash')]);
-        const model = geminiClient.getGenerativeModel({ 
+        const model = geminiClient.getGenerativeModel({
           model: resolved,
           generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 2048,
           }
         });
-        
+
         // Format conversation history for Gemini
         let conversationText = 'You are a helpful assistant that provides accurate and concise responses.\n\n';
-        
+
         // Add conversation history
         if (conversationHistory && conversationHistory.length > 0) {
           for (const msg of conversationHistory) {
@@ -504,28 +511,28 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
             conversationText += `${role}: ${msg.content}\n`;
           }
         }
-        
+
         // Add current user message
         conversationText += `User: ${message}\nAssistant:`;
-        
+
         // Call Gemini API
         const result = await model.generateContent(conversationText);
         const response = await result.response;
-        
+
         return response.text();
       } catch (error) {
         console.error('Error calling Gemini API:', error);
-        
+
         // Check if it's an API key error
         if (error.message && (error.message.includes('API key') || error.message.includes('API_KEY'))) {
           return "There seems to be an issue with the API configuration. Please check your Gemini API key settings.";
         }
-        
+
         // Check if it's a rate limit error
         if (error.message && (error.message.includes('rate limit') || error.message.includes('quota'))) {
           return "The API rate limit has been reached. Please try again in a few moments.";
         }
-        
+
         // Check for invalid or deprecated model errors and gracefully fallback to flash
         if (error.message && (error.message.includes('Invalid model') || error.message.includes('not found') || error.message.includes('does not exist'))) {
           try {
@@ -564,22 +571,37 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
         if (error.message && (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT') || error.message.includes('network'))) {
           return "There was a network error connecting to the Gemini AI service. Please check your internet connection and try again.";
         }
-        
+
         // For all other errors, provide a more helpful message
         return "I'm having trouble processing your request right now. This could be due to high demand or a temporary service issue. Please try again in a few moments.";
       }
     }
 
-    // Generate AI response using real OpenAI API
-    let ragResponse;
-    try {
-      ragResponse = await generateRealResponse(message, conversationHistory);
-    } catch (error) {
-      console.error('Error generating response:', error);
-      return res.status(500).json({ error: 'Failed to generate AI response' });
+    // Generate AI response using selected provider
+    let assistantReply;
+    if (isOpenAIModel(modelUsed)) {
+      try {
+        const contextStr = (conversationHistory || [])
+          .map(msg => `${msg.role}: ${msg.content}`)
+          .join('\n');
+        assistantReply = await generateChatResponse({
+          message,
+          modelName: modelUsed,
+          context: contextStr
+        });
+      } catch (error) {
+        logger.error('Error calling OpenAI:', error);
+        assistantReply = "I'm having trouble processing your request right now. Please try again.";
+      }
+    } else {
+      try {
+        const ragResponse = await generateRealResponse(message, conversationHistory);
+        assistantReply = ragResponse || "I'm having trouble processing your request right now. Please try again.";
+      } catch (error) {
+        console.error('Error generating response:', error);
+        return res.status(500).json({ error: 'Failed to generate AI response' });
+      }
     }
-    
-    const assistantReply = ragResponse || "I'm having trouble processing your request right now. Please try again.";
 
     // Cache response only if it's not an error-like message
     const isErrorLike = typeof assistantReply === 'string' && (
@@ -623,7 +645,7 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
           role: 'assistant',
           content: assistantReply,
           tokens: assistantReply.split(' ').length,
-          model_used: effectiveModel
+          model_used: modelUsed
         });
       if (assistantMsgError) {
         logger.error('Error saving assistant message:', assistantMsgError);
@@ -664,10 +686,22 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
 
     res.status(200).json({
       output: assistantReply,
-      sessionId: currentSessionId, // Always return the chat_id
-      model: effectiveModel,
+      sessionId: currentSessionId,
+      model: isOpenAIModel(modelUsed) ? modelUsed : effectiveModel,
       downgraded: Boolean(downgraded) || wasDowngraded,
-      isNewChat: isNewChat // Flag to help frontend manage sidebar
+      isNewChat: isNewChat,
+      routing: routing ? {
+        type: routing.type,
+        difficulty: routing.difficulty,
+        aiAnalyzedDifficulty: routing.aiAnalyzedDifficulty,
+        primaryModel: routing.primaryModel,
+        fallbackModels: routing.fallbackModels,
+        allowed: routing.allowed,
+        downgraded: routing.downgraded,
+        confidence: routing.confidence,
+        nano: routing.enhancedAnalysis?.routingMetadata?.nanoClassification || null,
+        provider: isOpenAIModel(modelUsed) ? 'openai' : 'gemini'
+      } : undefined
     });
 
   } catch (error) {
@@ -679,7 +713,7 @@ async function handleText({ message, sessionId, userId, userPlan, intent, diffic
 async function handleImage({ message, userId, userPlan, intent, difficulty, allowed, res }) {
   try {
     const imageResponse = await generateImageSimple(message);
-    
+
     res.status(200).json({
       output: imageResponse,
       type: 'image',
@@ -699,7 +733,7 @@ async function handleDiagram({ message, userId, userPlan, intent, difficulty, co
     }
 
     const diagramResponse = await generateDiagram(message);
-    
+
     res.status(200).json({
       output: diagramResponse,
       type: 'diagram',
