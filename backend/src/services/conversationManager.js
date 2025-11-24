@@ -107,11 +107,27 @@ class ConversationManager {
         throw msgError;
       }
 
+      // Filter out legacy summary messages (cleanup)
+      const cleanMessages = (msgRows || []).filter(m => {
+        const content = m.content || '';
+        if (m.role === 'assistant' && (
+          content.startsWith('The conversation involves') ||
+          content.startsWith('The conversation features') ||
+          content.startsWith('The user confirms') ||
+          content.startsWith('The user asks') ||
+          content.includes('summarize paragraph for cotext')
+        )) {
+          return false;
+        }
+        return true;
+      });
+
       const conversation = {
         id: chat.id,
         user_id: chat.user_id,
         title: chat.title,
-        messages: (msgRows || []).map(m => ({
+        summary: chat.summary, // Return the summary field
+        messages: cleanMessages.map(m => ({
           role: m.role,
           content: m.content,
           model: m.model_used, // Map for frontend
@@ -131,6 +147,27 @@ class ConversationManager {
     } catch (error) {
       logger.error('Error in getConversation:', error);
       throw error;
+    }
+  }
+
+  // Update conversation summary in DB
+  async updateSummary(conversationId, summary) {
+    try {
+      const { error } = await supabase
+        .from('chats')
+        .update({ summary })
+        .eq('id', conversationId);
+
+      if (error) {
+        logger.error('Error updating summary:', error);
+        throw error;
+      }
+
+      // Invalidate cache
+      await this.redisClient.del(`chat:${conversationId}`);
+    } catch (error) {
+      logger.error('Error in updateSummary:', error);
+      // Don't throw, just log - summary update failure shouldn't break the chat
     }
   }
 

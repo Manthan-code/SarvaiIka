@@ -22,11 +22,11 @@ const streamingChatRoutes = require('./routes/streamingChatRoutes.js');
 const errorRoutes = require('./routes/errorRoutes.js');
 const adminRoutes = require('./routes/adminRoutes.js');
 const errorHandler = require('./middlewares/errorHandler.js');
-const { 
-  validateRequest, 
-  rateLimitConfigs, 
-  securityHeaders, 
-  validateInputLength 
+const {
+  validateRequest,
+  rateLimitConfigs,
+  securityHeaders,
+  validateInputLength
 } = require('./middlewares/validationMiddleware.js');
 const {
   securityLogger,
@@ -132,9 +132,9 @@ app.use((req, res, next) => {
     /javascript:/i, // JavaScript protocol
     /data:.*base64/i // Data URI with base64
   ];
-  
+
   const requestString = `${req.method} ${req.url} ${JSON.stringify(req.headers)} ${JSON.stringify(req.body || {})}`;
-  
+
   for (const pattern of suspiciousPatterns) {
     if (pattern.test(requestString)) {
       logger.warn('Suspicious request detected', {
@@ -147,7 +147,7 @@ app.use((req, res, next) => {
       break;
     }
   }
-  
+
   next();
 });
 
@@ -237,6 +237,8 @@ app.use('/api/errors', errorRoutes);
 // Handle trailing slash for error routes
 //app.use('/api/errors/', errorRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/images', require('./routes/imageRoutes'));
+app.use('/api/files', require('./routes/fileRoutes'));
 app.use('/api/performance', require('./routes/performance'));
 
 // Debug: Log all registered routes at startup to verify availability
@@ -283,10 +285,10 @@ try {
 }
 
 // Root route
-app.get("/", (_req, res) => res.send("API up ✅")); 
+app.get("/", (_req, res) => res.send("API up ✅"));
 
 // Test route to verify routing is working
-app.get("/test", (_req, res) => res.send("Test route working ✅")); 
+app.get("/test", (_req, res) => res.send("Test route working ✅"));
 
 // Explicitly handle OPTIONS requests for preflight checks with the same options
 app.options('*', cors(corsOptions));
@@ -335,10 +337,10 @@ if (process.env.NODE_ENV !== 'test') {
     logger.info(new Date().toISOString());
 
     await testConnections();
-    
+
     // Start performance monitoring
     startMonitoring();
-    
+
     // Start subscription expiration checker
     SubscriptionExpirationService.startExpirationChecker();
   });

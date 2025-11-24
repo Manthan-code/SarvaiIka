@@ -1,0 +1,793 @@
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\block-navigation.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\lcov-report\block-navigation.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\lcov-report\prettify.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\lcov-report\sorter.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\prettify.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\coverage\sorter.js[24m[0m
+[0m  [2m1:1[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported)[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\App.tsx[24m[0m
+[0m  [2m251:6[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'isRealInitialLoad'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\AdminRoute.tsx[24m[0m
+[0m  [2m14:81[22m  [31merror[39m  React Hook "useUserRole" is called conditionally. React Hooks must be called in the exact same order in every component render  [2mreact-hooks/rules-of-hooks[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\AsyncErrorBoundary.tsx[24m[0m
+[0m  [2m257:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m270:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m286:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\EnhancedStreamingChat.tsx[24m[0m
+[0m  [2m591:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ErrorBoundary.tsx[24m[0m
+[0m  [2m143:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m165:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\GlobalErrorHandler.tsx[24m[0m
+[0m   [2m44:33[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m113:64[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m263:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m264:82[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m272:87[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m285:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ImageGenerationDialog.tsx[24m[0m
+[0m  [2m104:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m118:72[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m131:70[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\LazyComponents.tsx[24m[0m
+[0m  [2m65:10[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\PerformanceDashboard.tsx[24m[0m
+[0m  [2m349:6[22m  [33mwarning[39m  React Hook useCallback has a missing dependency: 'updateSystemHealth'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m394:5[22m  [33mwarning[39m  React Hook useMemo has a missing dependency: 'metrics'. Either include it or remove the dependency array                 [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\PerformanceMonitor.tsx[24m[0m
+[0m   [2m92:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m176:40[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m380:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\StreamingErrorBoundary.tsx[24m[0m
+[0m   [2m76:61[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m77:26[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m79:15[22m  [31merror[39m    Empty block statement                                                                                                           [2mno-empty[22m[0m
+[0m  [2m512:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m528:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m  [2m531:22[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m531:73[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m532:20[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\modals\SettingsModal.tsx[24m[0m
+[0m  [2m430:6[22m  [33mwarning[39m  React Hook useEffect has missing dependencies: 'fetchBackgroundImages' and 'fetchUserSettings'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\modals\ShareChatModal.tsx[24m[0m
+[0m  [2m100:19[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m126:17[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\sidebar\RecentChatsPanel.tsx[24m[0m
+[0m   [2m69:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'commitInlineEdit'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m104:38[22m  [31merror[39m    Empty block statement                                                                                                [2mno-empty[22m[0m
+[0m  [2m319:56[22m  [31merror[39m    Empty block statement                                                                                                [2mno-empty[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\sidebar\SearchChatModal.tsx[24m[0m
+[0m  [2m38:6[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'fetchChats'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\badge.tsx[24m[0m
+[0m  [2m36:17[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\button.tsx[24m[0m
+[0m  [2m56:18[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\command.tsx[24m[0m
+[0m  [2m24:11[22m  [31merror[39m  An interface declaring no members is equivalent to its supertype  [2m@typescript-eslint/no-empty-object-type[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\form.tsx[24m[0m
+[0m  [2m168:3[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\sidebar.tsx[24m[0m
+[0m  [2m760:3[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\sonner.tsx[24m[0m
+[0m  [2m29:19[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\components\ui\textarea.tsx[24m[0m
+[0m  [2m5:18[22m  [31merror[39m  An interface declaring no members is equivalent to its supertype  [2m@typescript-eslint/no-empty-object-type[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\config\sentry.ts[24m[0m
+[0m   [2m43:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m76:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m106:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\contexts\BackgroundContext.tsx[24m[0m
+[0m   [2m35:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'user?.id'. Either include it or remove the dependency array                     [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m157:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useActiveChat.ts[24m[0m
+[0m   [2m60:45[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m90:15[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m103:59[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m117:6[22m    [33mwarning[39m  React Hook useCallback has a missing dependency: 'normalizeOutput'. Either include it or remove the dependency array                                                         [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m139:27[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m328:6[22m    [33mwarning[39m  React Hook useCallback has a missing dependency: 'session?.user?.id'. Either include it or remove the dependency array                                                       [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m338:58[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m385:48[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m385:77[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m385:103[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m386:52[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m387:37[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m388:36[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m425:16[22m   [31merror[39m    Unexpected any. Specify a different type                                                                                                                                     [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m433:19[22m   [31merror[39m    Empty block statement                                                                                                                                                        [2mno-empty[22m[0m
+[0m  [2m438:19[22m   [31merror[39m    Empty block statement                                                                                                                                                        [2mno-empty[22m[0m
+[0m  [2m439:17[22m   [31merror[39m    Empty block statement                                                                                                                                                        [2mno-empty[22m[0m
+[0m  [2m449:6[22m    [33mwarning[39m  React Hook useCallback has missing dependencies: 'currentChat?.created_at', 'currentChat?.title', and 'normalizeOutput'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useEnhancedStreamingChat.ts[24m[0m
+[0m  [2m128:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'loadCachedData'. Either include it or remove the dependency array                                                                                                                                                [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m140:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'saveMessagesToStorage'. Either include it or remove the dependency array                                                                                                                                         [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m319:6[22m   [33mwarning[39m  React Hook useCallback has a missing dependency: 'sendMessage'. Either include it or remove the dependency array                                                                                                                                                 [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m534:25[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported from 'no-console')[0m
+[0m  [2m536:31[22m  [31merror[39m    Empty block statement                                                                                                                                                                                                                                            [2mno-empty[22m[0m
+[0m  [2m612:6[22m   [33mwarning[39m  React Hook useCallback has missing dependencies: 'config.streamThrottleMs', 'session?.access_token', and 'streamingState.stage'. Either include them or remove the dependency array                                                                              [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m666:18[22m  [33mwarning[39m  The ref value 'cacheRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'cacheRef.current' to a variable inside the effect, and use that variable in the cleanup function  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useImageGeneration.ts[24m[0m
+[0m  [2m65:23[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\usePerformanceOptimization.ts[24m[0m
+[0m   [2m59:53[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                           [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m59:63[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                           [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m80:53[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                           [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m80:63[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                           [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m109:17[22m  [31merror[39m    React Hook "useRef" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function   [2mreact-hooks/rules-of-hooks[22m[0m
+[0m  [2m110:12[22m  [31merror[39m    React Hook "useMemo" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  [2mreact-hooks/rules-of-hooks[22m[0m
+[0m  [2m119:11[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                           [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m121:12[22m  [33mwarning[39m  React Hook useMemo received a function whose dependencies are unknown. Pass an inline function instead                                             [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m121:12[22m  [31merror[39m    React Hook "useMemo" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  [2mreact-hooks/rules-of-hooks[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useRecentChats.ts[24m[0m
+[0m   [2m67:36[22m  [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m192:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'loadChats'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useStreamingChat.ts[24m[0m
+[0m   [2m50:31[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m51:42[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m52:48[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m74:35[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m83:37[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m124:34[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m130:19[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m277:17[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m301:21[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m344:24[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m348:27[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m350:23[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m365:53[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m406:26[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m407:53[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m409:25[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m422:69[22m  [31merror[39m    Empty block statement                                                                                                                                                                 [2mno-empty[22m[0m
+[0m  [2m434:6[22m   [33mwarning[39m  React Hook useCallback has missing dependencies: 'altStreamingUrl', 'primaryStreamingUrl', 'sessionIdFromStream', and 'useProxy'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useSubscriptions.tsx[24m[0m
+[0m  [2m265:8[22m  [33mwarning[39m  React Hook useEffect has an unnecessary dependency: 'userIdRef.current'. Either exclude it or remove the dependency array. Mutable values like 'userIdRef.current' aren't valid dependencies because mutating them doesn't re-render the component  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useTheme.tsx[24m[0m
+[0m  [2m97:14[22m  [33mwarning[39m  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  [2mreact-refresh/only-export-components[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useUserProfile.ts[24m[0m
+[0m  [2m150:6[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'loadProfile'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\hooks\useUserRole.ts[24m[0m
+[0m   [2m74:38[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m98:36[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m134:82[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m134:119[22m  [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m146:39[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m174:19[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m211:6[22m    [33mwarning[39m  React Hook useCallback has a missing dependency: 'profile'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m215:36[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m222:85[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m223:36[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m250:74[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m251:42[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m251:67[22m   [31merror[39m    Unexpected any. Specify a different type                                                                      [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\Chat.tsx[24m[0m
+[0m  [2m344:6[22m  [31merror[39m  Parsing error: Declaration or statement expected[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\ShareChat.tsx[24m[0m
+[0m   [2m46:19[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m104:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\Subscriptions.tsx[24m[0m
+[0m  [2m85:6[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'handleCheckoutSuccess'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\TransactionHistory.tsx[24m[0m
+[0m  [2m62:6[22m  [33mwarning[39m  React Hook useEffect has a missing dependency: 'fetchTransactionHistory'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\admin\ManageBackgroundImages.tsx[24m[0m
+[0m  [2m240:79[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\admin\ManageUsers.tsx[24m[0m
+[0m  [2m28:18[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m63:6[22m   [33mwarning[39m  React Hook useEffect has missing dependencies: 'session' and 'user?.email'. Either include them or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m93:58[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m97:21[22m  [31merror[39m    Unexpected any. Specify a different type                                                                                        [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\pages\admin\SystemSettings.tsx[24m[0m
+[0m   [2m86:6[22m   [33mwarning[39m  React Hook useEffect has a missing dependency: 'fetchSystemConfig'. Either include it or remove the dependency array  [2mreact-hooks/exhaustive-deps[22m[0m
+[0m  [2m182:57[22m  [31merror[39m    Unexpected any. Specify a different type                                                                              [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\services\errorTrackingService.ts[24m[0m
+[0m  [2m111:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m294:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\services\subscriptionsService.ts[24m[0m
+[0m  [2m22:32[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\services\supabaseClient.ts[24m[0m
+[0m  [2m7:3[22m  [33mwarning[39m  Unused eslint-disable directive (no problems were reported from 'no-console')[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\utils\StreamMarkdownCleaner.ts[24m[0m
+[0m   [2m26:63[22m  [31merror[39m  Unnecessary escape character: \-  [2mno-useless-escape[22m[0m
+[0m  [2m148:30[22m  [31merror[39m  Unnecessary escape character: \)  [2mno-useless-escape[22m[0m
+[0m  [2m148:34[22m  [31merror[39m  Unnecessary escape character: \}  [2mno-useless-escape[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\utils\apiClient.ts[24m[0m
+[0m    [2m9:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m19:13[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m47:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m47:80[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m48:80[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m132:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m141:26[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m178:23[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m228:17[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m235:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m235:43[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m245:17[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m245:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m255:19[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m255:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m265:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m272:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m297:13[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m298:14[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m298:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m299:13[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m299:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m300:15[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m300:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m301:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m302:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\src\utils\errorHandler.ts[24m[0m
+[0m   [2m10:13[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m40:67[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m75:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m169:13[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m197:62[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m212:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m326:26[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tailwind.config.ts[24m[0m
+[0m  [2m124:12[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\App.coverage.test.tsx[24m[0m
+[0m    [2m6:20[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m22:46[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m27:37[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m61:102[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m62:97[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m63:102[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m64:106[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m66:92[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m71:19[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m79:86[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m88:26[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m89:29[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m102:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m120:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m138:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m154:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m166:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m179:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m192:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m206:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m220:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\App.smoke.test.tsx[24m[0m
+[0m    [2m6:20[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m17:18[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m60:86[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m62:22[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m66:22[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m72:97[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m73:102[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m74:106[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m75:102[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m79:92[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m90:26[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m91:29[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m110:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m127:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m144:17[22m   [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\App.test.tsx[24m[0m
+[0m  [2m158:17[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\ErrorBoundary.test.tsx[24m[0m
+[0m  [2m143:23[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m144:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m156:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\PerformanceDashboard.test.tsx[24m[0m
+[0m   [2m19:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m21:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m24:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m27:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m30:53[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m37:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m39:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m48:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m50:49[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m68:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m70:48[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m77:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m79:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m82:48[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m85:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m88:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m95:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m97:29[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m98:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m105:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m106:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m118:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m123:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m124:31[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m125:21[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m136:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m141:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m147:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\__mocks__\apiClient.ts[24m[0m
+[0m    [2m8:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m    [2m8:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m112:70[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m160:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m169:71[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m188:41[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m204:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\__mocks__\authStore.ts[24m[0m
+[0m  [2m21:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m24:32[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m24:63[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m25:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m26:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m26:48[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m36:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m36:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m61:52[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m62:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\__mocks__\errorApiService.ts[24m[0m
+[0m  [2m19:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\AdminRoute.test.tsx[24m[0m
+[0m  [2m42:30[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m43:29[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m53:30[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m54:29[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m68:30[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m81:29[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\EnhancedStreamingChat.test.tsx[24m[0m
+[0m  [2m41:47[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m45:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m49:21[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m53:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m57:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m61:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m62:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m63:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m64:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\GlobalErrorHandler.test.tsx[24m[0m
+[0m   [2m50:64[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m343:41[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m348:41[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m368:64[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m388:21[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m409:21[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m502:64[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\OptimizedImage.test.tsx[24m[0m
+[0m  [2m15:9[22m   [31merror[39m  Expected an assignment or function call and instead saw an expression                                                [2m@typescript-eslint/no-unused-expressions[22m[0m
+[0m  [2m17:9[22m   [31merror[39m  Expected an assignment or function call and instead saw an expression                                                [2m@typescript-eslint/no-unused-expressions[22m[0m
+[0m  [2m22:1[22m   [31merror[39m  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  [2m@typescript-eslint/ban-ts-comment[22m[0m
+[0m  [2m23:29[22m  [31merror[39m  Unexpected any. Specify a different type                                                                             [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\OptimizedList.test.tsx[24m[0m
+[0m  [2m15:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m16:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m30:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m44:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m45:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\PerformanceMonitor.test.tsx[24m[0m
+[0m   [2m8:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m10:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m13:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m16:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m19:53[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m26:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m30:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m36:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m40:24[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m41:31[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m42:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m43:31[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\ProtectedLayout.test.tsx[24m[0m
+[0m  [2m11:106[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m16:107[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m21:100[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m28:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m29:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m30:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m34:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m50:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m51:22[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\SettingsModal.test.tsx[24m[0m
+[0m   [2m20:16[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m54:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m60:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m68:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m74:66[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m80:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m81:26[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m82:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m86:32[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m87:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m88:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m89:55[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m114:14[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m126:9[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m175:25[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\StreamingChat.test.tsx[24m[0m
+[0m    [2m8:68[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m16:66[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m22:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m33:23[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m44:24[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m44:49[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m55:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m56:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m69:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m70:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m100:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m102:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m124:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\StreamingErrorBoundary.test.tsx[24m[0m
+[0m  [2m25:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m29:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m30:41[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m31:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m32:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m33:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m37:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m38:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\layout\AppSidebar.test.tsx[24m[0m
+[0m   [2m32:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m40:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m100:71[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m156:29[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m159:30[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m166:32[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m174:29[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m179:28[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m226:31[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m355:32[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m370:32[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m385:41[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m394:36[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\layout\ProtectedLayout.test.tsx[24m[0m
+[0m  [2m41:26[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\components\sidebar\AdminMasterPanel.test.tsx[24m[0m
+[0m  [2m8:26[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m9:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\use-mobile.test.tsx[24m[0m
+[0m   [2m9:29[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m18:47[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m19:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m24:12[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useActiveChat.test.tsx[24m[0m
+[0m  [2m25:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useEnhancedStreamingChat.test.tsx[24m[0m
+[0m   [2m19:38[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m332:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useRecentChats.test.tsx[24m[0m
+[0m  [2m29:59[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m35:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useStreamingChat.test.tsx[24m[0m
+[0m   [2m11:38[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m12:12[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m13:12[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m37:12[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m44:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m60:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m103:97[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m125:97[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useSubscriptions.test.tsx[24m[0m
+[0m   [2m57:8[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m63:22[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m84:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m107:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m120:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m134:22[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m156:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m167:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m168:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m183:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m187:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m199:30[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m211:53[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useUserProfile.test.tsx[24m[0m
+[0m   [2m24:59[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m33:8[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m37:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m121:59[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m129:69[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\hooks\useUserRole.test.tsx[24m[0m
+[0m  [2m12:33[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m35:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m68:70[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m80:15[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m96:24[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m98:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\lib\authUtils.test.ts[24m[0m
+[0m   [2m14:32[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m75:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m88:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m101:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m108:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\lib\axiosClient.test.ts[24m[0m
+[0m    [2m5:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m    [2m5:66[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m    [2m6:28[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m17:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m21:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m25:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m29:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m46:52[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m50:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m51:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m55:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m67:52[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m78:24[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m96:52[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m101:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m105:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m109:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m111:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m134:22[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m143:24[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m144:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m150:25[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\lib\localStorageUtils.test.ts[24m[0m
+[0m  [2m40:66[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m52:103[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m63:29[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m73:30[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m82:23[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\lib\tokenUtils.test.ts[24m[0m
+[0m    [2m4:27[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m    [2m5:18[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m16:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m103:58[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Chat.test.tsx[24m[0m
+[0m   [2m18:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m20:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m36:55[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m44:32[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m45:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m46:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m49:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m100:25[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m313:27[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Dashboard.complete.test.tsx[24m[0m
+[0m  [2m197:5[22m  [31merror[39m  A `require()` style import is forbidden  [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Dashboard.test.tsx[24m[0m
+[0m   [2m29:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m30:41[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m31:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m32:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m33:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m37:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m46:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m137:32[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Login.test.tsx[24m[0m
+[0m   [2m13:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m28:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m29:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m45:1[22m   [31merror[39m  Unexpected var, use let or const instead  [2mno-var[22m[0m
+[0m   [2m45:19[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m386:33[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Signup.test.tsx[24m[0m
+[0m  [2m11:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m27:61[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m35:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m41:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m45:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m46:41[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m47:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m48:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m49:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m53:22[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m57:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m58:46[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Subscriptions.behavior.test.tsx[24m[0m
+[0m   [2m78:10[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m102:30[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\Subscriptions.test.tsx[24m[0m
+[0m  [2m17:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m29:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m58:12[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m85:8[22m   [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\TransactionHistory.test.tsx[24m[0m
+[0m   [2m16:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m27:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m128:81[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\pages\admin\SystemSettings.test.tsx[24m[0m
+[0m  [2m11:9[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\backgroundImageService.test.ts[24m[0m
+[0m  [2m51:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m59:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m65:84[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\billingService.test.js[24m[0m
+[0m  [2m6:21[22m  [31merror[39m  Parsing error: Unexpected token as[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\chatsService.test.js[24m[0m
+[0m  [2m6:20[22m  [31merror[39m  Parsing error: Unexpected token as[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\plansService.test.js[24m[0m
+[0m  [2m6:20[22m  [31merror[39m  Parsing error: Unexpected token as[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\profileService.test.js[24m[0m
+[0m  [2m6:20[22m  [31merror[39m  Parsing error: Unexpected token as[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\stripeService.test.js[24m[0m
+[0m  [2m6:21[22m  [31merror[39m  Parsing error: Unexpected token as[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\subscriptionsService.test.ts[24m[0m
+[0m  [2m17:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\services\supabaseClient.test.ts[24m[0m
+[0m  [2m11:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m12:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\setup.js[24m[0m
+[0m  [2m46:12[22m  [31merror[39m  Parsing error: Unexpected token <[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\tests\streamingComponents.test.tsx[24m[0m
+[0m   [2m21:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m23:49[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m41:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m43:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m52:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m54:53[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m69:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m71:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m74:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m77:50[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m80:53[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m87:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m   [2m89:29[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m90:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m97:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m   [2m98:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m109:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m111:48[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m118:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m120:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m123:48[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m126:54[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m129:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m137:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m138:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m139:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m140:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m141:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m142:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m143:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m144:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m145:36[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m146:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m147:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m148:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m149:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m150:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m151:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m152:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m153:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m154:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m155:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m156:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m157:41[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m158:43[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m159:44[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m160:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m161:38[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m162:35[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m163:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m164:34[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m165:42[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m166:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m167:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m168:39[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m169:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m170:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m171:40[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m176:20[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m181:17[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m  [2m182:31[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m183:21[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m194:45[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m199:47[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m204:51[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m210:37[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m274:26[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m275:29[22m  [31merror[39m  Unexpected any. Specify a different type  [2m@typescript-eslint/no-explicit-any[22m[0m
+[0m  [2m347:46[22m  [31merror[39m  A `require()` style import is forbidden   [2m@typescript-eslint/no-require-imports[22m[0m
+[0m[0m
+[0m[4mD:\ai-agent-platform\frontend\vite.config.ts[24m[0m
+[0m  [2m23:23[22m  [31merror[39m  Empty block statement  [2mno-empty[22m[0m
+[0m[0m
+[0m[31m[1m✖ 575 problems (523 errors, 52 warnings)[22m[39m[0m
+[0m[31m[1m[22m[39m[31m[1m  1 error and 8 warnings potentially fixable with the `--fix` option.[22m[39m[0m
+[0m[31m[1m[22m[39m[0m

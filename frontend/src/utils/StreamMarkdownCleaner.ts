@@ -30,8 +30,8 @@ export class StreamMarkdownCleaner {
 
   // Normalize common LaTeX command words by prefixing a backslash when missing
   private normalizeLatexCommands(str: string): string {
-    const cmds = ['frac','sqrt','int','sum','prod','lim','log','sin','cos','tan','cdot','ldots','leq','geq','neq','approx','sim','propto',
-      'alpha','beta','gamma','delta','epsilon','zeta','eta','theta','iota','kappa','lambda','mu','nu','xi','omicron','pi','rho','sigma','tau','upsilon','phi','chi','psi','omega'];
+    const cmds = ['frac', 'sqrt', 'int', 'sum', 'prod', 'lim', 'log', 'sin', 'cos', 'tan', 'cdot', 'ldots', 'leq', 'geq', 'neq', 'approx', 'sim', 'propto',
+      'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau', 'upsilon', 'phi', 'chi', 'psi', 'omega'];
     const pattern = new RegExp(`\\b(${cmds.join('|')})\\b`, 'g');
     return str.replace(pattern, (match: string, cmd: string, offset: number, full: string) => {
       // If already prefixed with backslash, keep as is
@@ -45,12 +45,24 @@ export class StreamMarkdownCleaner {
   processChunk(input: string): string {
     if (!input) return '';
 
+    // Filter out <think>...</think> blocks (Chain of Thought)
+    // We do this before other processing to ensure reasoning is completely hidden
+    let processedInput = input;
+
+    // Simple regex to remove complete think blocks
+    processedInput = processedInput.replace(/<think>[\s\S]*?<\/think>/gi, '');
+
+    // Handle incomplete think blocks (e.g. <think> started but not ended in this chunk, or ended but started in previous)
+    // This is a simplified approach; for perfect streaming filtering of split tags, we'd need more state.
+    // But for now, we'll just remove the tags themselves if they appear.
+    processedInput = processedInput.replace(/<\/?think>/gi, '');
+
     let out = '';
     // Basic scanner through the chunk
-    for (let i = 0; i < input.length; i++) {
-      const ch = input[i];
-      const next = i + 1 < input.length ? input[i + 1] : '';
-      const next2 = i + 2 < input.length ? input[i + 2] : '';
+    for (let i = 0; i < processedInput.length; i++) {
+      const ch = processedInput[i];
+      const next = i + 1 < processedInput.length ? processedInput[i + 1] : '';
+      const next2 = i + 2 < processedInput.length ? processedInput[i + 2] : '';
 
       // Handle fences and code contexts first
       if (!this.inInlineMath && !this.inBlockMath) {
@@ -103,8 +115,8 @@ export class StreamMarkdownCleaner {
           // capture contiguous word
           let word = ch;
           let k = i + 1;
-          for (; k < input.length; k++) {
-            const c = input[k];
+          for (; k < processedInput.length; k++) {
+            const c = processedInput[k];
             if (!/[A-Za-z]/.test(c)) break;
             word += c;
           }
@@ -124,8 +136,8 @@ export class StreamMarkdownCleaner {
         let j = i + 2;
         let sawNonSpace = false;
         let sawNewline = false;
-        for (; j < input.length; j++) {
-          const c = input[j];
+        for (; j < processedInput.length; j++) {
+          const c = processedInput[j];
           if (c === '\n') { sawNewline = true; break; }
           if (!/\s/.test(c)) { sawNonSpace = true; break; }
         }
@@ -143,8 +155,8 @@ export class StreamMarkdownCleaner {
         if (/[^\s]/.test(ch)) {
           let phrase = ch;
           let k = i + 1;
-          for (; k < input.length; k++) {
-            const c = input[k];
+          for (; k < processedInput.length; k++) {
+            const c = processedInput[k];
             if (/[\s]|[,:;.!?\)\]\}]|\n/.test(c)) break;
             phrase += c;
           }

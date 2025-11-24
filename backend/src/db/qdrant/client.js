@@ -1,72 +1,66 @@
 // === QDRANT CLIENT ===
-// File: src/qdrant/client.js
+// File: src/db/qdrant/client.js
 
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Use mock client during testing
+const { randomUUID } = require('crypto');
+
 if (process.env.NODE_ENV === 'test') {
   module.exports = require('./mockClient');
 } else {
   const { QdrantClient } = require('@qdrant/js-client-rest');
-  
-  // Initialize Qdrant client
+
+  console.log('[QDRANT] Initializing Qdrant client…');
+
   const qdrant = new QdrantClient({
     url: process.env.QDRANT_URL || 'http://localhost:6333',
-    apiKey: process.env.QDRANT_API_KEY || '', // Optional
-    checkCompatibility: false, // Suppress compatibility warnings
+    apiKey: process.env.QDRANT_API_KEY || '',
+    checkCompatibility: false,
   });
 
-  // Utility functions
-  const createCollection = async (collectionName, vectorSize = 1536) => {
-    try {
-      await qdrant.collections.create({
-        collection_name: collectionName,
-        vectors: { size: vectorSize, distance: 'Cosine' },
-      });
-      console.log(`Collection "${collectionName}" created successfully.`);
-    } catch (err) {
-      if (err.response?.status === 409) {
-        console.log(`Collection "${collectionName}" already exists.`);
-      } else {
-        console.error('Error creating collection:', err);
-      }
-    }
-  };
+  console.log('[QDRANT] Client ready');
 
-  const addVector = async (collectionName, vector, payload = {}) => {
+  // ============================
+  // ADD VECTOR
+  // ============================
+  const addVector = async (collectionName, point) => {
     try {
-      const response = await qdrant.points.upsert({
-        collection_name: collectionName,
-        points: [
-          {
-            id: Date.now(), // or any unique ID logic
-            vector,
-            payload,
-          },
-        ],
+      // Ensure point has an ID
+      const pointWithId = {
+        ...point,
+        id: point.id || randomUUID()
+      };
+
+      const response = await qdrant.upsert(collectionName, {
+        wait: true,
+        points: [pointWithId],
       });
       return response;
     } catch (err) {
-      console.error('Error adding vector:', err);
+      console.error('[QDRANT] Error adding vector:', err.message);
+      throw err;
     }
   };
 
-  const searchVector = async (collectionName, vector, top = 5) => {
+  // ============================
+  // SEARCH VECTOR
+  // ============================
+  const searchVector = async (collectionName, queryObject) => {
     try {
-      const response = await qdrant.points.search({
-        collection_name: collectionName,
-        vector,
-        limit: top,
-      });
+      // queryObject contains { vector, limit, filter, with_payload, score_threshold, ... }
+      // qdrant.search expects (collection_name, search_points)
+      const response = await qdrant.search(collectionName, queryObject);
       return response;
     } catch (err) {
-      console.error('Error searching vector:', err);
+      console.error('[QDRANT] Error searching vector:', err.message);
+      throw err;
     }
   };
+
+  // Attach helper methods (expected by enhancedQdrantService)
+  qdrant.addVector = addVector;
+  qdrant.searchVector = searchVector;
 
   module.exports = qdrant;
-  module.exports.createCollection = createCollection;
-  module.exports.addVector = addVector;
-  module.exports.searchVector = searchVector;
 }

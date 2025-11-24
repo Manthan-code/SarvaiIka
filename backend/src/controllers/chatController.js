@@ -61,6 +61,7 @@ const handleChat = async (req, res, next) => {
       if (error && error.code === 'RATE_LIMIT_EXCEEDED') {
         return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
       }
+      console.error('🔥 CRITICAL CHAT ERROR:', error); // Force log to console
       logger.error('Chat error:', error);
       return res.status(500).json({ success: false, error: 'Internal server error' });
     }

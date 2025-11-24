@@ -294,57 +294,67 @@ router.get('/:id', requireAuth, asyncHandler(async (req, res) => {
 
 
 // POST /api/chat - Send a message
-router.post('/', requireAuth, trackUsage, asyncHandler(async (req, res) => {
-  try {
-    const { message, sessionId } = req.body;
-    const userId = req.user.id;
-    const userPlan = req.profile.subscription_plan || 'free'; // Fixed: use req.profile instead of req.user
+router.post('/',
+  (req, res, next) => {
+    console.log(`[DEBUG] Entering chatRoutes POST / handler`);
+    next();
+  },
+  requireAuth, trackUsage, asyncHandler(async (req, res) => {
+    try {
+      const { message, sessionId } = req.body;
+      const userId = req.user.id;
 
-    if (!message || message.trim() === '') {
-      return res.status(400).json({ error: 'Message is required' });
-    }
+      console.log(`[POST /api/chat] Received request from user ${userId}`);
 
-    // Route using enhanced model router (includes nano-classification logging internally)
-    const computedRoute = await modelRouter.routeQuery(message, userPlan);
+      // Safely access profile, defaulting to free plan if profile is missing
+      const userPlan = (req.profile && req.profile.subscription_plan) ? req.profile.subscription_plan : 'free';
 
-    // The router now returns the exact model to use
-    const model = computedRoute.primaryModel;
-    const intent = computedRoute.type;
-    const difficulty = computedRoute.difficulty;
-    const allowed = computedRoute.allowed;
+      if (!message || message.trim() === '') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
 
-    logger.info('[ChatRoutes] Routing decision', {
-      intent,
-      difficulty,
-      model,
-      subscriptionPlan: userPlan,
-    });
+      // Route using enhanced model router (includes nano-classification logging internally)
+      const computedRoute = await modelRouter.routeQuery(message, userPlan);
 
-    if (!allowed) {
-      return res.status(403).json({
-        error: 'This feature requires a higher subscription plan',
-        requiredPlan: 'plus'
+      // The router now returns the exact model to use
+      const model = computedRoute.primaryModel;
+      const intent = computedRoute.type;
+      const difficulty = computedRoute.difficulty;
+      const allowed = computedRoute.allowed;
+
+      logger.info('[ChatRoutes] Routing decision', {
+        intent,
+        difficulty,
+        model,
+        subscriptionPlan: userPlan,
       });
-    }
 
-    // Route to appropriate handler based on intent
-    switch (intent) {
-      case 'text':
-      case 'coding':
-        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
-      case 'image':
-        return await handleImage({ message, userId, userPlan, intent, difficulty, allowed, res });
-      case 'diagram':
-        return await handleDiagram({ message, userId, userPlan, intent, difficulty, content_type: 'diagram', allowed, res });
-      default:
-        return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
-    }
+      if (!allowed) {
+        return res.status(403).json({
+          error: 'This feature requires a higher subscription plan',
+          requiredPlan: 'plus'
+        });
+      }
 
-  } catch (error) {
-    logger.error('Error in POST /api/chat:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}));
+      // Route to appropriate handler based on intent
+      switch (intent) {
+        case 'text':
+        case 'coding':
+          return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
+        case 'image':
+          return await handleImage({ message, userId, userPlan, intent, difficulty, allowed, res });
+        case 'diagram':
+          return await handleDiagram({ message, userId, userPlan, intent, difficulty, content_type: 'diagram', allowed, res });
+        default:
+          return await handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing: computedRoute, res });
+      }
+
+    } catch (error) {
+      console.error('🔥 CRITICAL CHAT ROUTE ERROR:', error); // Force log to console
+      logger.error('Error in POST /api/chat:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }));
 
 async function handleText({ message, sessionId, userId, userPlan, intent, difficulty, model, allowed, downgraded, routing, res }) {
   try {

@@ -26,6 +26,27 @@ const config = {
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
   },
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY,
+  },
+  deepseek: {
+    apiKey: process.env.DEEPSEEK_API_KEY,
+  },
+  mistral: {
+    apiKey: process.env.MISTRAL_API_KEY,
+  },
+  xai: {
+    apiKey: process.env.XAI_API_KEY,
+  },
+  groq: {
+    apiKey: process.env.GROQ_API_KEY,
+  },
+  stability: {
+    apiKey: process.env.STABILITY_API_KEY,
+  },
+  qwen: {
+    apiKey: process.env.QWEN_API_KEY,
+  },
   // JWT removed - using Supabase Auth exclusively
   logLevel: process.env.LOG_LEVEL || 'info',
 };

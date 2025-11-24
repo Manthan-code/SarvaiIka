@@ -20,6 +20,7 @@ const setCorsHeaders = (res) => {
  */
 const requireAuth = async (req, res, next) => {
   try {
+    console.log('[DEBUG] Entering requireAuth middleware');
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       setCorsHeaders(res);
@@ -28,7 +29,7 @@ const requireAuth = async (req, res, next) => {
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+
     if (error || !user) {
       logger.warn('Authentication failed:', error?.message);
       setCorsHeaders(res);
@@ -123,7 +124,7 @@ const requireAdmin = async (req, res, next) => {
   // First authenticate the user
   await requireAuth(req, res, (authError) => {
     if (authError) return;
-    
+
     // Then check for admin role
     const roleMiddleware = requireRole('admin');
     roleMiddleware(req, res, next);

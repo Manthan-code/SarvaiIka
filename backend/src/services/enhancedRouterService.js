@@ -10,14 +10,19 @@ class EnhancedRouterService {
 
     // Define available models based on StreamingService capabilities
     this.FREE_MODELS = [
-      'gpt-4o-mini',
-      'gemini-2.5-flash-lite'
+      'gemini-2.5-flash',   // Strong factual/multilingual
+      'gpt-4o-mini',        // General purpose/stable
+      'deepseek-v3.2',      // Reasoning/Math
+      'qwen',               // Code/Reasoning
+      'mistral-small',      // Fast/Efficient
+      'codestral',          // Heavy Coding
+      'llama-3.1-8b'        // Fast/Open Source (via Groq)
     ];
 
     this.PAID_MODELS = [
-      'gpt-4o',
-      'gpt-4-turbo',
-      'gemini-2.5-flash',
+      'gpt-4o',             // Premium general
+      'gemini-pro',         // Premium reasoning
+      'grok-4',             // Real-time/Reasoning
       ...this.FREE_MODELS
     ];
 
@@ -38,19 +43,8 @@ class EnhancedRouterService {
     const availableModels = isPaid ? this.PAID_MODELS : this.FREE_MODELS;
     const modelListString = availableModels.join(', ');
 
-    let systemPrompt = '';
-
-    if (isPaid) {
-      // Paid User Prompt: Optimize for cost if easy, quality if hard
-      systemPrompt = `Select best model from: [${modelListString}].
-Rules:
-- Simple/Easy -> Cheap model (gpt-4o-mini, gemini-2.5-flash-lite)
-- Complex/Hard -> Capable model (gpt-4o, gemini-2.5-flash)
-Return ONLY model name.`;
-    } else {
-      // Free User Prompt: Best fit from free list
-      systemPrompt = `Select best model for query from: [${modelListString}]. Return ONLY model name.`;
-    }
+    // Ultra-Lightweight Router Prompt (Optimized for Cost & Nuance)
+    const systemPrompt = `Role:Smart Router.Goal:Select best model from:[${modelListString}].Task:Analyze query vs model strengths.Pick best fit.Constraints:No fixed rules/tags.No difficulty scoring.Output:JSON {"model":"name"}`;
 
     try {
       const start = Date.now();
@@ -72,26 +66,37 @@ Return ONLY model name.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: query }
         ],
-        temperature: 0, // Deterministic
-        max_tokens: 20,
+        temperature: 0.3, // Slight creativity for anti-bias
+        max_tokens: 12,   // Strict token limit
+        response_format: { type: "json_object" }
       });
 
-      const selectedModel = completion.choices[0].message.content.trim();
-      const duration = Date.now() - start;
+      const rawOutput = completion.choices[0].message.content.trim();
+      let selectedModel = this.FREE_MODELS[0]; // Default
 
-      // Validate selection
-      const finalModel = availableModels.includes(selectedModel) ? selectedModel : availableModels[0];
+      try {
+        const parsed = JSON.parse(rawOutput);
+        if (parsed.model && availableModels.includes(parsed.model)) {
+          selectedModel = parsed.model;
+        } else {
+          logger.warn('[EnhancedRouterService] Invalid model in JSON, using default', parsed);
+        }
+      } catch (e) {
+        logger.warn('[EnhancedRouterService] Failed to parse JSON output', rawOutput);
+      }
+
+      const duration = Date.now() - start;
 
       logger.info('[EnhancedRouterService] Routing decision', {
         query: query.substring(0, 50) + '...',
         plan: subscriptionPlan,
-        selectedModel: finalModel,
-        rawOutput: selectedModel,
+        selectedModel,
+        rawOutput,
         duration
       });
 
       return {
-        primaryModel: finalModel,
+        primaryModel: selectedModel,
         type: this.detectType(query), // Helper for legacy compatibility
         difficulty: 'dynamic', // Handled by LLM
         allowed: true,

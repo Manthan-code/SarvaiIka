@@ -1,7 +1,7 @@
 const qdrantClient = require('../db/qdrant/client');
 
 const COLLECTION_NAME = 'user_embeddings';
-const VECTOR_SIZE = 1536; // Default OpenAI embedding size
+const VECTOR_SIZE = 384; // Gemini embedding-001 size
 
 /**
  * Initialize the user embeddings collection if it doesn't exist
@@ -40,7 +40,7 @@ async function storeEmbedding(userId, input, embeddingVector) {
     await ensureCollection();
 
     const pointId = `${userId}_${Date.now()}`;
-    
+
     const point = {
       id: pointId,
       vector: embeddingVector,

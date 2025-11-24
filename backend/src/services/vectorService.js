@@ -2,6 +2,7 @@
 // File: backend/src/services/vectorService.js
 
 const qdrant = require('../db/qdrant/client.js');
+const enhancedQdrantService = require('./enhancedQdrantService');
 const OpenAI = require('openai');
 const dotenv = require('dotenv');
 
@@ -12,14 +13,10 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // Name of your Qdrant collection
 const COLLECTION_NAME = 'chat_vectors';
 
-// --- Helper: Embed text using OpenAI ---
+// --- Helper: Embed text using EnhancedQdrantService (Gemini) ---
 const embedText = async (text) => {
   try {
-    const response = await openai.embeddings.create({
-      model: 'text-embedding-3-small', // or 3-large
-      input: text,
-    });
-    return response.data[0].embedding;
+    return await enhancedQdrantService.generateEmbedding(text);
   } catch (err) {
     console.error('Error creating embedding:', err);
   }
@@ -29,7 +26,7 @@ const embedText = async (text) => {
 const initCollection = async () => {
   await qdrant.collections.create({
     collection_name: COLLECTION_NAME,
-    vectors: { size: 1536, distance: 'Cosine' }, // same size as embedding
+    vectors: { size: 768, distance: 'Cosine' }, // Gemini embedding size
   }).catch((err) => {
     if (err.response?.status === 409) {
       console.log(`Collection "${COLLECTION_NAME}" already exists.`);

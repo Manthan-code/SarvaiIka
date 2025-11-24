@@ -17,6 +17,23 @@ class EnhancedModelRouter {
       // The LLM has already made the final decision based on the plan
       const primaryModel = enhancedRouting.primaryModel;
 
+      // Determine fallback models based on primary selection
+      let fallbackModels = [];
+
+      if (primaryModel.includes('deepseek') || primaryModel.includes('qwen')) {
+        // DeepSeek/Qwen -> Fallback to GPT-4o-mini or Gemini Flash
+        fallbackModels = ['gpt-4o-mini', 'gemini-2.5-flash'];
+      } else if (primaryModel === 'gpt-4o') {
+        // GPT-4o -> Fallback to GPT-4o-mini
+        fallbackModels = ['gpt-4o-mini'];
+      } else if (primaryModel === 'gemini-pro') {
+        // Gemini Pro -> Fallback to Gemini Flash
+        fallbackModels = ['gemini-2.5-flash'];
+      } else {
+        // Default fallback
+        fallbackModels = ['gpt-4o-mini'];
+      }
+
       // Build routing result
       const route = {
         type: enhancedRouting.type,
@@ -24,7 +41,7 @@ class EnhancedModelRouter {
         intent: enhancedRouting.type === 'coding' ? 'coding' : 'general',
         subscriptionPlan,
         primaryModel: primaryModel,
-        fallbackModels: [], // LLM selection is definitive; could add generic fallbacks if needed
+        fallbackModels: fallbackModels,
         restricted: false,
         downgraded: false, // Logic is internal to LLM
         allowed: true,

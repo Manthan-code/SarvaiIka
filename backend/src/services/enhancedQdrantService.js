@@ -6,6 +6,7 @@
 const qdrantClient = require('../db/qdrant/client');
 const logger = require('../config/logger');
 const crypto = require('crypto');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class EnhancedQdrantService {
   constructor() {
@@ -15,15 +16,27 @@ class EnhancedQdrantService {
       responsePatterns: 'response_patterns',
       semanticCache: 'semantic_cache'
     };
-    
+
     this.vectorConfig = {
-      size: 1536, // OpenAI embedding size
+      size: 768, // Gemini embedding-001 default size
       distance: 'Cosine',
-      mockVectorSize: 384 // Smaller size for mock embeddings
+      mockVectorSize: 768 // Keep mock size consistent
     };
-    
+
     this.useMockEmbeddings = process.env.USE_MOCK_AI === 'true' || process.env.NODE_ENV === 'development';
     this.initialized = false;
+
+    // Initialize Gemini client
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.FREE_MODEL_API_KEY;
+    if (geminiKey) {
+      this.genAI = new GoogleGenerativeAI(geminiKey);
+      this.embeddingModel = this.genAI.getGenerativeModel({ model: "models/embedding-001" });
+    } else {
+      logger.warn('[EnhancedQdrantService] No Gemini API key found. Falling back to mock embeddings.');
+      this.useMockEmbeddings = true;
+    }
+
+    this.dimensionChecked = false;
   }
 
   /**
@@ -31,18 +44,47 @@ class EnhancedQdrantService {
    */
   async initialize() {
     if (this.initialized) return;
-    
+
     try {
       // Create collections if they don't exist
       for (const [name, collection] of Object.entries(this.collections)) {
-        await qdrantClient.createCollection(collection, {
-          vectors: {
-            size: this.useMockEmbeddings ? this.vectorConfig.mockVectorSize : this.vectorConfig.size,
-            distance: this.vectorConfig.distance
+        try {
+          // Check if collection exists and verify dimension
+          try {
+            const info = await qdrantClient.getCollection(collection);
+            const currentSize = info.config.params.vectors.size;
+
+            if (currentSize !== this.vectorConfig.size) {
+              logger.warn(`[Qdrant] Collection ${collection} has dimension ${currentSize}, expected ${this.vectorConfig.size}. Recreating...`);
+              await qdrantClient.deleteCollection(collection);
+              throw new Error('Collection deleted for upgrade'); // Trigger creation catch block
+            } else {
+              logger.info(`[Qdrant] Collection ${collection} dimension check passed (${currentSize})`);
+            }
+          } catch (err) {
+            // If collection doesn't exist or was just deleted, create it
+            if (err.status === 404 || err.message === 'Collection deleted for upgrade') {
+              await qdrantClient.createCollection(collection, {
+                vectors: {
+                  size: this.useMockEmbeddings ? this.vectorConfig.mockVectorSize : this.vectorConfig.size,
+                  distance: this.vectorConfig.distance
+                }
+              });
+              logger.info(`[Qdrant] Created collection ${collection} with dimension ${this.vectorConfig.size}`);
+            } else {
+              throw err;
+            }
           }
-        });
+        } catch (err) {
+          // Ignore if collection already exists (409 Conflict) - double check just in case
+          if (err?.status === 409 || err?.response?.status === 409 || err?.message?.includes('already exists')) {
+            // Collection exists, proceed
+          } else {
+            throw err;
+          }
+        }
       }
-      
+
       this.initialized = true;
       logger.info('EnhancedQdrantService initialized successfully');
     } catch (error) {
@@ -52,25 +94,55 @@ class EnhancedQdrantService {
   }
 
   /**
+   * Generate embedding vector using Gemini or mock
+   * @param {string} text - Text to generate embedding for
+   * @returns {Promise<number[]>} Embedding vector
+   */
+  async generateEmbedding(text) {
+    if (this.useMockEmbeddings || !this.embeddingModel) {
+      return this.generateMockEmbedding(text);
+    }
+
+    try {
+      const result = await this.embeddingModel.embedContent(text);
+      const embedding = result.embedding.values;
+
+      // Safety check for dimension on first run
+      if (!this.dimensionChecked) {
+        logger.info(`[Embeddings] Using Gemini models/embedding-001, dim: ${embedding.length}`);
+        if (embedding.length !== 768) {
+          logger.error(`[Embeddings] CRITICAL: Dimension mismatch! Expected 768, got ${embedding.length}`);
+        }
+        this.dimensionChecked = true;
+      }
+
+      return embedding;
+    } catch (error) {
+      logger.error('[EnhancedQdrantService] Gemini embedding generation failed, falling back to mock:', error.message);
+      return this.generateMockEmbedding(text);
+    }
+  }
+
+  /**
    * Generate mock embedding vector
    * @param {string} text - Text to generate embedding for
    * @returns {number[]} Mock embedding vector
    */
   generateMockEmbedding(text) {
-    const size = this.useMockEmbeddings ? this.vectorConfig.mockVectorSize : this.vectorConfig.size;
+    const size = this.vectorConfig.size; // Always use configured size (384)
     const vector = new Array(size);
-    
+
     // Create deterministic but varied embeddings based on text content
     const hash = crypto.createHash('md5').update(text).digest('hex');
     const seed = parseInt(hash.substring(0, 8), 16);
-    
+
     for (let i = 0; i < size; i++) {
       // Use text features to influence vector values
       const textFeature = this.extractTextFeature(text, i);
       const randomComponent = Math.sin(seed + i) * 0.5;
       vector[i] = (textFeature + randomComponent) / Math.sqrt(size);
     }
-    
+
     return vector;
   }
 
@@ -89,7 +161,7 @@ class EnhancedQdrantService {
       digitRatio: (text.match(/\d/g) || []).length / text.length,
       punctuationRatio: (text.match(/[.,!?;:]/g) || []).length / text.length
     };
-    
+
     const featureKeys = Object.keys(features);
     const featureIndex = dimension % featureKeys.length;
     return features[featureKeys[featureIndex]] || 0;
@@ -104,49 +176,49 @@ class EnhancedQdrantService {
   async searchSemanticCache(query, options = {}) {
     try {
       await this.initialize();
-      
+
       // Handle case where threshold is passed as second parameter directly
       let threshold = 0.8;
       let topK = 1;
-      
+
       if (typeof options === 'number') {
         threshold = options;
       } else {
         threshold = options.threshold || 0.8;
         topK = options.topK || 1;
       }
-      
+
       // Validate threshold parameter
       if (threshold < 0 || threshold > 1) {
         return null;
       }
-      
-      const vector = this.generateMockEmbedding(query);
+
+      const vector = await this.generateEmbedding(query);
       const currentTime = Date.now();
-      
+
       const searchResult = await qdrantClient.searchVector(this.collections.semanticCache, {
         vector: vector,
         limit: topK,
         score_threshold: threshold,
         with_payload: true
       });
-      
+
       if (!searchResult || searchResult.length === 0) {
         return null;
       }
-      
+
       const result = searchResult[0];
-      
+
       // Check TTL
       if (result.payload.ttl && (currentTime - result.payload.timestamp) > result.payload.ttl) {
         return null;
       }
-      
+
       logger.debug('Semantic cache hit', {
         score: result.score,
         accessCount: result.payload.accessCount + 1
       });
-      
+
       return {
         response: result.payload.response,
         metadata: result.payload.metadata,
@@ -169,18 +241,18 @@ class EnhancedQdrantService {
   async getUserAnalytics(userId, options = {}) {
     try {
       await this.initialize();
-      
+
       const {
         limit = 100,
         timeRange = 30 * 24 * 60 * 60 * 1000 // 30 days
       } = options;
-      
+
       const currentTime = Date.now();
       const startTime = currentTime - timeRange;
-      
+
       // Search for user's query history
       const searchResult = await qdrantClient.searchVector(this.collections.queryContext, {
-        vector: this.generateMockEmbedding('user analytics query'),
+        vector: await this.generateEmbedding('user analytics query'),
         limit: limit,
         filter: {
           must: [
@@ -199,9 +271,9 @@ class EnhancedQdrantService {
         },
         with_payload: true
       });
-      
+
       const queries = searchResult || [];
-      
+
       // Analyze query patterns
       const analytics = {
         totalQueries: queries.length,
@@ -222,32 +294,32 @@ class EnhancedQdrantService {
           monthly: 0
         }
       };
-      
+
       // Process query statistics
       queries.forEach(query => {
         const payload = query.payload;
-        
+
         // Count query types
         const queryType = payload.queryType || 'unknown';
         analytics.queryTypes[queryType] = (analytics.queryTypes[queryType] || 0) + 1;
-        
+
         // Count models
         const model = payload.model || 'unknown';
         analytics.models[model] = (analytics.models[model] || 0) + 1;
       });
-      
+
       // Calculate frequency
       const dayMs = 24 * 60 * 60 * 1000;
-      analytics.queryFrequency.daily = queries.filter(q => 
+      analytics.queryFrequency.daily = queries.filter(q =>
         (currentTime - q.payload.timestamp) < dayMs
       ).length;
-      
-      analytics.queryFrequency.weekly = queries.filter(q => 
+
+      analytics.queryFrequency.weekly = queries.filter(q =>
         (currentTime - q.payload.timestamp) < (7 * dayMs)
       ).length;
-      
+
       analytics.queryFrequency.monthly = queries.length;
-      
+
       logger.debug('Generated user analytics', { userId, totalQueries: analytics.totalQueries });
       return analytics;
     } catch (error) {
@@ -265,10 +337,10 @@ class EnhancedQdrantService {
   async storeSemanticCache(query, response, metadata) {
     try {
       await this.initialize();
-      
-      const vector = this.generateMockEmbedding(query);
-      const pointId = `cache_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-      
+
+      const vector = await this.generateEmbedding(query);
+      const pointId = crypto.randomUUID();
+
       const point = {
         id: pointId,
         vector: vector,
@@ -282,9 +354,9 @@ class EnhancedQdrantService {
           ttl: metadata.ttl || 3600000 // 1 hour default
         }
       };
-      
+
       await qdrantClient.addVector(this.collections.semanticCache, point);
-      
+
       logger.debug('Stored semantic cache entry', { pointId });
       return { success: true, pointId };
     } catch (error) {
@@ -299,10 +371,10 @@ class EnhancedQdrantService {
   async storeQueryContext(userId, query, context) {
     try {
       await this.initialize();
-      
-      const vector = this.generateMockEmbedding(query);
-      const pointId = `context_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-      
+
+      const vector = await this.generateEmbedding(query);
+      const pointId = crypto.randomUUID();
+
       const point = {
         id: pointId,
         vector: vector,
@@ -314,9 +386,9 @@ class EnhancedQdrantService {
           queryType: context.queryType || 'general'
         }
       };
-      
+
       await qdrantClient.addVector(this.collections.queryContext, point);
-      
+
       logger.debug('Stored query context', { pointId, userId });
       return { success: true, pointId };
     } catch (error) {
@@ -334,10 +406,10 @@ class EnhancedQdrantService {
   async trackUserQuery(userId, query, metadata = {}) {
     try {
       await this.initialize();
-      
-      const vector = this.generateMockEmbedding(query);
-      const pointId = `query_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-      
+
+      const vector = await this.generateEmbedding(query);
+      const pointId = crypto.randomUUID();
+
       const point = {
         id: pointId,
         vector: vector,
@@ -351,9 +423,9 @@ class EnhancedQdrantService {
           confidence: metadata.confidence || 0
         }
       };
-      
+
       await qdrantClient.addVector(this.collections.queryContext, point);
-      
+
       logger.debug('Tracked user query', { pointId, userId, queryType: metadata.queryType });
       return { success: true, pointId };
     } catch (error) {
@@ -368,9 +440,9 @@ class EnhancedQdrantService {
   async searchSimilarQueries(userId, query, limit = 5) {
     try {
       await this.initialize();
-      
-      const vector = this.generateMockEmbedding(query);
-      
+
+      const vector = await this.generateEmbedding(query);
+
       const searchResult = await qdrantClient.searchVector(this.collections.queryContext, {
         vector: vector,
         limit: limit,
@@ -381,7 +453,7 @@ class EnhancedQdrantService {
         },
         with_payload: true
       });
-      
+
       return searchResult.map(result => ({
         query: result.payload.query,
         context: result.payload.context,
@@ -400,10 +472,10 @@ class EnhancedQdrantService {
   async storeResponsePattern(queryType, pattern) {
     try {
       await this.initialize();
-      
-      const vector = this.generateMockEmbedding(pattern.template || pattern.response || '');
-      const pointId = `pattern_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-      
+
+      const vector = await this.generateEmbedding(pattern.template || pattern.response || '');
+      const pointId = crypto.randomUUID();
+
       const point = {
         id: pointId,
         vector: vector,
@@ -413,9 +485,9 @@ class EnhancedQdrantService {
           timestamp: Date.now()
         }
       };
-      
+
       await qdrantClient.addVector(this.collections.responsePatterns, point);
-      
+
       logger.debug('Stored response pattern', { pointId, queryType });
       return { success: true, pointId };
     } catch (error) {
@@ -430,9 +502,9 @@ class EnhancedQdrantService {
   async findResponsePatterns(queryType, limit = 5) {
     try {
       await this.initialize();
-      
+
       const searchResult = await qdrantClient.searchVector(this.collections.responsePatterns, {
-        vector: this.generateMockEmbedding(queryType),
+        vector: await this.generateEmbedding(queryType),
         limit: limit,
         filter: {
           must: [
@@ -441,7 +513,7 @@ class EnhancedQdrantService {
         },
         with_payload: true
       });
-      
+
       return searchResult.map(result => ({
         pattern: result.payload.pattern,
         queryType: result.payload.queryType,
@@ -490,4 +562,4 @@ class EnhancedQdrantService {
   }
 }
 
-module.exports = EnhancedQdrantService;
+module.exports = new EnhancedQdrantService();

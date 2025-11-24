@@ -101,11 +101,34 @@ export function useActiveChat(): UseActiveChatReturn {
   }): CachedMessage => {
     // Ensure content is a string to avoid React rendering objects
     const normalizedContent = normalizeOutput((message as any).content);
+    const contentStr = typeof normalizedContent === 'string' ? normalizedContent : '';
+
+    // robust timestamp parsing
+    let validTimestamp = message.timestamp || message.created_at || new Date().toISOString();
+    if (isNaN(new Date(validTimestamp).getTime())) {
+      validTimestamp = new Date().toISOString();
+    }
+
+    // Generate a stable ID if missing to prevent React key thrashing on re-fetches
+    // We use a simple hash of role + timestamp + content snippet
+    let finalId = message.id;
+    if (!finalId) {
+      const signature = `${message.role || 'unknown'}-${validTimestamp}-${contentStr.slice(0, 32)}`;
+      // Simple hash function for stability
+      let hash = 0;
+      for (let i = 0; i < signature.length; i++) {
+        const char = signature.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      finalId = `gen-${Math.abs(hash)}`;
+    }
+
     return {
-      id: message.id || `${Date.now()}-${Math.random()}`,
-      content: typeof normalizedContent === 'string' ? normalizedContent : '',
-      role: (message.role === 'user' || message.role === 'assistant') ? message.role : 'user',
-      timestamp: message.timestamp || message.created_at || new Date().toISOString(),
+      id: finalId,
+      content: contentStr,
+      role: ((message.role || '').toLowerCase() === 'user') ? 'user' : 'assistant',
+      timestamp: validTimestamp,
       chat_id: message.chat_id || currentChatId || '',
       user_id: message.user_id || session?.user?.id || 'unknown',
       tokens: message.tokens,
@@ -148,6 +171,10 @@ export function useActiveChat(): UseActiveChatReturn {
           );
 
           if (validMessages.length > 0) {
+            // Sort cached messages by timestamp (oldest first)
+            validMessages.sort((a, b) =>
+              new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+            );
             setMessages(validMessages);
             cachedMessages = validMessages;
             setIsLoading(false); // Stop loading since we have cached data
@@ -204,6 +231,12 @@ export function useActiveChat(): UseActiveChatReturn {
 
         if (chatData) {
           const transformedMessages = chatData.messages?.map(transformMessage) || [];
+
+          // Sort messages by timestamp (oldest first) to ensure correct display order
+          transformedMessages.sort((a, b) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+
           console.log('🔄 [useActiveChat] Transformed messages:', {
             originalCount: chatData.messages?.length || 0,
             transformedCount: transformedMessages.length,

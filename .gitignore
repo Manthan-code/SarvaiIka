@@ -7,13 +7,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Environment variables (CRITICAL - Never commit these)
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-.env.*.local
-.secrets
+
 
 # Runtime data
 pids
@@ -164,3 +158,4 @@ test-results/
 # Docker
 .dockerignore
 Dockerfile.local
+.env

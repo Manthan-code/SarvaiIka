@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Share2, Check, ArrowUp, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Copy, Share2, Check, ArrowUp, MoreHorizontal, Trash2, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -42,6 +42,7 @@ export default function Chat() {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [imageMode, setImageMode] = useState(false);
   const lastUserInputRef = useRef<string>('');
   const [autoScrollEnabled, setAutoScrollEnabled] = useState<boolean>(true);
 
@@ -644,48 +645,16 @@ export default function Chat() {
           {(isLoading || isSending || streamingState?.isStreaming) && (
             <ChatLoadingIndicator className="mb-2" />
           )}
-          <form onSubmit={handleSend} className="relative flex items-end space-x-3">
-            {/* "+" button with dropdown menu */}
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setShowMenu(!showMenu)}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                title="Add files and more"
-              >
-                <span className="text-gray-600 dark:text-gray-300 text-3xl">+</span>
-              </button>
-
-              {/* Dropdown menu */}
-              <div
-                className={`absolute bottom-12 left-0 w-52 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden transform transition-all duration-200 ease-in-out ${showMenu ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
-                  }`}
-              >
-                <button
-                  type="button"
-                  className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                  onClick={() => setShowMenu(false)}
-                >
-                  📎 Add photos & files
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
-                  onClick={() => setShowMenu(false)}
-                >
-                  🎨 Create Image
-                </button>
-              </div>
-            </div>
+          <form onSubmit={handleSend} className={`relative ${imageMode ? 'flex flex-col space-y-2' : 'flex items-end space-x-3'}`}>
 
             {/* Textarea */}
-            <div className="relative flex-1">
+            <div className={`relative flex-1 ${imageMode ? 'order-first' : ''}`}>
               <textarea
                 ref={textareaRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Need help? Ask away…"
+                placeholder={imageMode ? "Describe the image you want to create..." : "Need help? Ask away…"}
                 className="w-full bg-gray-100 dark:bg-[#303030] custom-scrollbar pr-2 border-none outline-none resize-none rounded-3xl px-2 py-2 text-l leading-6 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 min-h-[6px] max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent "
                 rows={1}
               />
@@ -696,17 +665,87 @@ export default function Chat() {
               )}
             </div>
 
-            {/* Send button */}
-            <button
-              type="submit"
-              disabled={!input.trim() || isSending}
-              className={`w-10 h-10 rounded-full p-0 flex items-center justify-center transition-all duration-200 ${input.trim()
-                ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md"
-                : "bg-gray-300 dark:bg-[#303030] text-gray-400 cursor-not-allowed"
-                }`}
-            >
-              <ArrowUp className="h-5 w-5" />
-            </button>
+            {/* "+" button with dropdown menu */}
+            <div className={`flex items-center space-x-3 ${imageMode ? 'flex-1 order-last' : 'order-first'}`}>
+              <div className="relative flex items-center" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  title="Add files and more"
+                >
+                  <span className="text-gray-600 dark:text-gray-300 text-3xl">+</span>
+                </button>
+
+                {/* Dropdown menu */}
+                <div
+                  className={`absolute bottom-12 left-0 w-52 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden transform transition-all duration-200 ease-in-out ${showMenu ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
+                    }`}
+                >
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    📎 Add photos & files
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-colors"
+                    onClick={() => {
+                      setImageMode(true);
+                      setShowMenu(false);
+                    }}
+                  >
+                    🎨 Create Image
+                  </button>
+                </div>
+              </div>
+
+              {/* Image mode indicator */}
+              {imageMode && (
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-gray-700 dark:text-gray-300 text-sm font-medium border border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                  onClick={() => setImageMode(false)}
+                  title="Click to exit image mode"
+                >
+                  <ImagePlus className="w-4 h-4" />
+                  <span>Image</span>
+                  <span className="text-xs opacity-70">×</span>
+                </button>
+              )}
+
+              {imageMode && <div className="flex-1"></div>}
+
+              {/* Send button - in image mode, inside wrapper for bottom row */}
+              {imageMode && (
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isSending}
+                  className={`w-10 h-10 rounded-full p-0 flex items-center justify-center transition-all duration-200 ${input.trim()
+                    ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md"
+                    : "bg-gray-300 dark:bg-[#303030] text-gray-400 cursor-not-allowed"
+                    }`}
+                >
+                  <ArrowUp className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+
+            {/* Send button - in normal mode, outside wrapper for right alignment */}
+            {!imageMode && (
+              <button
+                type="submit"
+                disabled={!input.trim() || isSending}
+                className={`w-10 h-10 rounded-full p-0 flex items-center justify-center transition-all duration-200 ${input.trim()
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md"
+                  : "bg-gray-300 dark:bg-[#303030] text-gray-400 cursor-not-allowed"
+                  }`}
+              >
+                <ArrowUp className="h-5 w-5" />
+              </button>
+            )}
           </form>
         </div>
       </div>

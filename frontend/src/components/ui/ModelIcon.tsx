@@ -134,6 +134,82 @@ export const ModelIcon: React.FC<ModelIconProps> = ({ model, className = "w-4 h-
                 </defs>
             </svg>
         );
+    } else if (modelName.includes('deepseek')) {
+        return (
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-label="DeepSeek Logo"
+            >
+                <circle cx="100" cy="100" r="90" fill="#1E40AF" />
+                <path d="M70 80 L100 50 L130 80 L100 110 Z" fill="white" />
+                <path d="M70 120 L100 90 L130 120 L100 150 Z" fill="white" opacity="0.7" />
+            </svg>
+        );
+    } else if (modelName.includes('mistral') || modelName.includes('codestral')) {
+        return (
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-label="Mistral AI Logo"
+            >
+                <rect width="200" height="200" rx="40" fill="#F2F2F2" />
+                <path d="M60 60h20v80h-20z" fill="#F7D046" />
+                <path d="M90 60h20v80h-20z" fill="#F2A73B" />
+                <path d="M120 60h20v80h-20z" fill="#EE792F" />
+            </svg>
+        );
+    } else if (modelName.includes('grok')) {
+        return (
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-label="xAI Grok Logo"
+            >
+                <rect width="200" height="200" fill="black" />
+                <path d="M50 50 L100 100 L50 150 M150 50 L100 100 L150 150" stroke="white" strokeWidth="12" strokeLinecap="round" />
+            </svg>
+        );
+    } else if (modelName.includes('llama') || modelName.includes('groq')) {
+        return (
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-label="Groq Logo"
+            >
+                <rect width="200" height="200" fill="#F55036" />
+                <circle cx="70" cy="70" r="15" fill="white" />
+                <circle cx="130" cy="70" r="15" fill="white" />
+                <path d="M60 120 Q100 140 140 120" stroke="white" strokeWidth="8" fill="none" strokeLinecap="round" />
+            </svg>
+        );
+    } else if (modelName.includes('qwen')) {
+        return (
+            <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={className}
+                aria-label="Qwen Logo"
+            >
+                <defs>
+                    <linearGradient id="qwenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#667EEA" />
+                        <stop offset="100%" stopColor="#764BA2" />
+                    </linearGradient>
+                </defs>
+                <rect width="200" height="200" rx="40" fill="url(#qwenGradient)" />
+                <text x="100" y="120" fontSize="80" fill="white" textAnchor="middle" fontWeight="bold" fontFamily="Arial">Q</text>
+            </svg>
+        );
     }
 
     return <Bot className={className} />;

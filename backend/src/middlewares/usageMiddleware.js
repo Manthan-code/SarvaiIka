@@ -32,6 +32,7 @@ async function getUserActiveSubscription(userId) {
 // Track usage middleware
 async function trackUsage(req, res, next) {
   try {
+    console.log('[DEBUG] Entering trackUsage middleware');
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
@@ -72,11 +73,11 @@ async function trackUsage(req, res, next) {
     // For free users, check if they have a subscription record
     if (req.userPlan === 'free') {
       const subscription = await getUserActiveSubscription(userId);
-      
+
       if (subscription) {
         // Free user with subscription record - check limits
         if (subscription.messages_used >= subscription.messages_limit) {
-          return res.status(403).json({ 
+          return res.status(403).json({
             error: 'Message limit exceeded for free plan',
             code: 'LIMIT_EXCEEDED'
           });
@@ -89,16 +90,16 @@ async function trackUsage(req, res, next) {
     } else {
       // Paid users - check subscription
       const subscription = await getUserActiveSubscription(userId);
-      
+
       if (!subscription) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'No active subscription found',
           code: 'NO_SUBSCRIPTION'
         });
       }
 
       if (subscription.messages_used >= subscription.messages_limit) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           error: 'Message limit exceeded',
           code: 'LIMIT_EXCEEDED'
         });
@@ -119,7 +120,7 @@ async function updateUsage(userId) {
   try {
     console.log('🔍 updateUsage called for userId:', userId);
     const supabase = getSupabase();
-    
+
     // First get the current usage WITHOUT using select() to keep chain intact when tests override select for update result
     const fetchRes = await supabase
       .from('subscriptions')
